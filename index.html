@@ -194,14 +194,28 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Backup & Restore -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <div class="flex items-center gap-3 mb-4 border-b pb-3"><div class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-database text-blue-600 text-xl"></i></div><div><h3 class="font-bold text-gray-800">System Data</h3><p class="text-xs text-gray-500">Backup or Restore full database.</p></div></div>
+                        <div class="flex items-center gap-3 mb-4 border-b pb-3"><div class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-database text-blue-600 text-xl"></i></div><div><h3 class="font-bold text-gray-800">System Data</h3><p class="text-xs text-gray-500">Full backup covers all 21 nodes.</p></div></div>
+                        <!-- Last backup warning -->
+                        <div id="backupWarning" class="hidden mb-3 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle text-amber-500 text-sm"></i>
+                            <span id="backupWarningText" class="text-xs text-amber-700 font-medium flex-1"></span>
+                        </div>
+                        <div id="backupOk" class="hidden mb-3 bg-green-50 border border-green-200 rounded-lg px-3 py-2 flex items-center gap-2">
+                            <i class="fas fa-check-circle text-green-500 text-sm"></i>
+                            <span id="backupOkText" class="text-xs text-green-700 font-medium flex-1"></span>
+                        </div>
+                        <!-- Backup manifest -->
+                        <div id="backupManifest" class="hidden mb-3 bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-600">
+                            <p class="font-bold text-gray-700 mb-1">Last backup contained:</p>
+                            <div id="backupManifestBody" class="grid grid-cols-2 gap-x-3 gap-y-0.5"></div>
+                        </div>
                         <div class="space-y-3">
-                            <button onclick="downloadBackup()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fas fa-file-export mr-2"></i> Download Backup</button>
+                            <button onclick="downloadBackup()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fas fa-file-export mr-2"></i> Download Full Backup</button>
                             <div class="relative">
                                 <input type="file" id="restoreFile" class="hidden" accept=".json" onchange="window.restoreData(this)">
                                 <button onclick="document.getElementById('restoreFile').click()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fas fa-file-import mr-2"></i> Restore / Import Data</button>
                             </div>
-                            <p class="text-xs text-center text-gray-400">Restore will merge data from JSON file.</p>
+                            <p class="text-xs text-center text-gray-400">Restore merges all nodes. Existing IDs overwritten.</p>
                         </div>
                     </div>
                     
@@ -214,14 +228,38 @@
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 uppercase">Target Data</label>
                                     <select id="cleanupTarget" onchange="renderCleanupTable()" class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 focus:ring-2 focus:ring-red-200 outline-none mt-1">
-                                        <option value="orders">All Orders (General)</option>
-                                        <option value="unknown_cust">👤 Orders with "Unknown" Customer (Fix Reports)</option>
-                                        <option value="shortfall_clean">📉 Cleanup Shortfall / Cancelled Orders</option>
-                                        <option value="corrupted">⚠️ Corrupted / Undefined Records (Fix Reports)</option>
-                                        <option value="user_wipe">🚫 Wipe Specific User Data (Transactions)</option>
-                                        <option value="maintenance_reports">Maintenance Logs</option>
-                                        <option value="production_logs">Production Logs</option>
-                                        <option value="batches_clean">🌱 Active Batches (Cleanup Old/Test)</option>
+                                        <optgroup label="Orders">
+                                            <option value="orders">All Orders (General)</option>
+                                            <option value="unknown_cust">👤 Unknown Customer Orders</option>
+                                            <option value="shortfall_clean">📉 Shortfall / Cancelled Orders</option>
+                                            <option value="stuck_placed">⏳ Stuck in PLACED 30+ Days</option>
+                                            <option value="zero_box">📦 Zero-Box Orders</option>
+                                            <option value="corrupted">⚠️ Corrupted / Undefined Records</option>
+                                            <option value="missing_deliveredat">🔧 DELIVERED missing deliveredAt (Backfill)</option>
+                                        </optgroup>
+                                        <optgroup label="People">
+                                            <option value="user_wipe">🚫 Wipe Specific User Data</option>
+                                        </optgroup>
+                                        <optgroup label="Logs & Operations">
+                                            <option value="maintenance_reports">Maintenance Logs</option>
+                                            <option value="production_logs">Production Logs</option>
+                                            <option value="daily_logs_clean">📋 Daily Logs</option>
+                                            <option value="store_logs_clean">🏪 Store Logs</option>
+                                        </optgroup>
+                                        <optgroup label="Farm">
+                                            <option value="batches_clean">🌱 Active Batches</option>
+                                            <option value="sowing_tasks_clean">🌾 Sowing Tasks</option>
+                                            <option value="seed_trials_clean">🧪 Seed Trials</option>
+                                            <option value="farm_crops_clean">🥬 Farm Crops</option>
+                                            <option value="harvests_clean">🌿 Harvests</option>
+                                        </optgroup>
+                                        <optgroup label="Finance">
+                                            <option value="partner_transactions_clean">💰 Partner Transactions</option>
+                                            <option value="receivables_clean">📊 Receivables</option>
+                                        </optgroup>
+                                        <optgroup label="Archive">
+                                            <option value="archive_view">🗂️ View Archive (Deleted Records)</option>
+                                        </optgroup>
                                     </select>
                                 </div>
                                 <div>
@@ -251,10 +289,24 @@
                                 </div>
                             </div>
 
+                            <!-- Bulk action toolbar -->
+                            <div id="bulkToolbar" class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+                                <label class="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer select-none">
+                                    <input type="checkbox" id="selectAllCleanup" onchange="window.toggleSelectAll(this.checked)" class="rounded">
+                                    Select All
+                                </label>
+                                <span id="selectedCount" class="text-xs text-gray-400">0 selected</span>
+                                <div class="flex-1"></div>
+                                <button onclick="window.exportCleanupCSV()" class="text-xs bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg font-bold transition"><i class="fas fa-file-csv mr-1"></i> Export CSV</button>
+                                <button onclick="window.archiveSelected()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg font-bold transition"><i class="fas fa-archive mr-1"></i> Archive Selected</button>
+                                <button onclick="window.deleteSelected()" class="text-xs bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3 py-1.5 rounded-lg font-bold transition"><i class="fas fa-trash mr-1"></i> Delete Selected</button>
+                            </div>
+
                             <div class="h-80 overflow-y-auto border border-gray-200 rounded-lg custom-scroll bg-white relative">
                                 <table class="w-full text-left text-xs">
                                     <thead class="bg-gray-100 sticky top-0 z-10 shadow-sm text-gray-700">
                                         <tr>
+                                            <th class="p-3 border-b w-8"></th>
                                             <th class="p-3 border-b">Date / ID</th>
                                             <th class="p-3 border-b">User / Owner</th>
                                             <th class="p-3 border-b">Transaction Details</th>
@@ -262,11 +314,11 @@
                                         </tr>
                                     </thead>
                                     <tbody id="cleanupTableBody" class="divide-y divide-gray-100">
-                                        <tr><td colspan="4" class="p-8 text-center text-gray-400">Select a target category above and click Load.</td></tr>
+                                        <tr><td colspan="5" class="p-8 text-center text-gray-400">Select a target category above and click Load.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="text-xs text-gray-400 italic mt-2 text-right">Note: "Wipe User" deletes all orders and logs linked to that person.</div>
+                            <div class="text-xs text-gray-400 italic mt-2 text-right">Archive moves records to /archive instead of permanent delete. "Wipe User" also removes logs.</div>
                         </div>
                     </div>
                 </div>
@@ -400,6 +452,7 @@
     window.initDataTools = () => {
         renderDataGrowthChart('monthly');
         updateDataNodeTable();
+        window.initBackupWarning();
     };
 
     window.refreshDataToolsUI = () => {
@@ -585,332 +638,507 @@
     window.showToast = (msg) => { const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg; t.classList.remove('translate-x-full'); setTimeout(() => t.classList.add('translate-x-full'), 3000); };
     window.toggleSidebar = () => { const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('sidebarOverlay'); sidebar.classList.toggle('-translate-x-full'); overlay.classList.toggle('hidden'); };
 
-    // --- DATA TOOLS: DOWNLOAD BACKUP ---
+    // --- BACKUP WARNING INIT ---
+    window.initBackupWarning = () => {
+        const lastTs = localStorage.getItem('oligo_last_backup_ts');
+        const warnEl = document.getElementById('backupWarning');
+        const okEl = document.getElementById('backupOk');
+        const manifestEl = document.getElementById('backupManifest');
+        const manifestBody = document.getElementById('backupManifestBody');
+        if (!warnEl) return;
+        if (!lastTs) {
+            warnEl.classList.remove('hidden'); okEl.classList.add('hidden');
+            document.getElementById('backupWarningText').textContent = 'No backup recorded. Download a backup now.';
+            return;
+        }
+        const days = Math.floor((Date.now() - parseInt(lastTs)) / 86400000);
+        if (days > 7) {
+            warnEl.classList.remove('hidden'); okEl.classList.add('hidden');
+            document.getElementById('backupWarningText').textContent = `Last backup was ${days} day${days!==1?'s':''} ago. Backup now!`;
+        } else {
+            okEl.classList.remove('hidden'); warnEl.classList.add('hidden');
+            document.getElementById('backupOkText').textContent = `Last backup: ${days === 0 ? 'today' : days + ' day' + (days!==1?'s':'') + ' ago'}.`;
+        }
+        // Show manifest if saved
+        const manifest = localStorage.getItem('oligo_last_backup_manifest');
+        if (manifest) {
+            try {
+                const m = JSON.parse(manifest);
+                manifestBody.innerHTML = Object.entries(m).map(([k,v]) => `<span class="text-gray-500">${k}:</span> <span class="font-bold text-gray-800">${v}</span>`).join('');
+                manifestEl.classList.remove('hidden');
+            } catch(e) {}
+        }
+    };
+
+    // --- DATA TOOLS: DOWNLOAD BACKUP (ALL 21 NODES) ---
     window.downloadBackup = () => {
-        const backupData = { 
-            orders: ordersData, 
-            customers: customersData, 
-            producers: producersData, 
-            deliveryPartners: deliveryData, 
+        const backupData = {
+            _meta: { generatedAt: new Date().toISOString(), generatedBy: document.getElementById('adminEmailDisplay')?.innerText || 'admin', version: '2.0' },
+            orders: ordersData,
+            customers: customersData,
+            Production: producersData,
+            deliveryPartners: deliveryData,
             farmers: farmersData,
-            storeInventory: storeInventory,
-            storeLogs: storeLogs,
+            stationeryPartners: stationeryData,
+            store_inventory: storeInventory,
+            store_logs: storeLogs,
             menus: menuData,
             farmCrops: farmCrops,
             harvests: harvestData,
             receivables: receivablesData,
             referrals: referralData,
-            partnerTransactions: walletData,
-            // Include other nodes if fetched to window scope
-            generatedAt: new Date().toISOString() 
+            partner_transactions: walletData,
+            maintenance_reports: maintenanceData,
+            seed_trials: seedData,
+            batches: window.batchesData || null,
+            sowingTasks: window.sowingTasksData || null,
+            production_logs: window.productionLogsData || null,
+            daily_logs: window.dailyLogsData || null,
+            settings: { holidays: holidaysData }
         };
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "oligo_full_backup_" + new Date().toISOString().split('T')[0] + ".json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-        window.showToast("Backup Download Started");
+        // Build manifest
+        const manifest = {};
+        Object.entries(backupData).forEach(([k, v]) => {
+            if (k === '_meta' || k === 'settings') return;
+            if (v && typeof v === 'object') manifest[k] = Object.keys(v).length + ' records';
+            else manifest[k] = 'empty';
+        });
+        // Save last backup timestamp + manifest
+        localStorage.setItem('oligo_last_backup_ts', Date.now().toString());
+        localStorage.setItem('oligo_last_backup_manifest', JSON.stringify(manifest));
+        window.initBackupWarning();
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+        const a = document.createElement('a');
+        a.setAttribute("href", dataStr);
+        a.setAttribute("download", "oligo_full_backup_" + new Date().toISOString().split('T')[0] + ".json");
+        document.body.appendChild(a); a.click(); a.remove();
+        window.showToast("Full backup downloaded (" + Object.keys(manifest).length + " nodes)");
     };
 
-    // --- DATA TOOLS: RESTORE DATA ---
+    // --- DATA TOOLS: RESTORE DATA (ALL NODES) ---
     window.restoreData = (input) => {
         const file = input.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const data = JSON.parse(e.target.result);
-                if (confirm("⚠️ WARNING: You are about to MERGE/RESTORE data from this backup file.\n\nExisting records with the same IDs will be overwritten. New records will be added.\n\nAre you sure you want to proceed?")) {
-                    const updates = {};
-                    if (data.orders) Object.entries(data.orders).forEach(([k,v]) => updates[`orders/${k}`] = v);
-                    if (data.customers) Object.entries(data.customers).forEach(([k,v]) => updates[`customers/${k}`] = v);
-                    if (data.farmers) Object.entries(data.farmers).forEach(([k,v]) => updates[`farmers/${k}`] = v);
-                    if (data.storeInventory) Object.entries(data.storeInventory).forEach(([k,v]) => updates[`store_inventory/${k}`] = v);
-                    if (data.menus) Object.entries(data.menus).forEach(([k,v]) => updates[`menus/${k}`] = v);
-                    
-                    // Proceed with update
-                    update(ref(db), updates)
-                        .then(() => { window.showToast("Restore Complete"); input.value = ''; })
-                        .catch(err => alert("Restore Failed: " + err.message));
+                const meta = data._meta || {};
+                const nodeMap = {
+                    orders: 'orders', customers: 'customers', Production: 'Production',
+                    deliveryPartners: 'deliveryPartners', farmers: 'farmers',
+                    stationeryPartners: 'stationeryPartners', store_inventory: 'store_inventory',
+                    store_logs: 'store_logs', menus: 'menus', farmCrops: 'farmCrops',
+                    harvests: 'harvests', receivables: 'receivables', referrals: 'referrals',
+                    partner_transactions: 'partner_transactions', maintenance_reports: 'maintenance_reports',
+                    seed_trials: 'seed_trials', batches: 'batches', sowingTasks: 'sowingTasks',
+                    production_logs: 'production_logs', daily_logs: 'daily_logs',
+                    // legacy key support
+                    producers: 'Production', storeInventory: 'store_inventory',
+                    storeLogs: 'store_logs', partnerTransactions: 'partner_transactions'
+                };
+                const nodeCounts = [];
+                const updates = {};
+                Object.entries(nodeMap).forEach(([backupKey, dbPath]) => {
+                    if (data[backupKey] && typeof data[backupKey] === 'object') {
+                        const entries = Object.entries(data[backupKey]);
+                        nodeCounts.push(`${dbPath}: ${entries.length}`);
+                        entries.forEach(([k, v]) => updates[`${dbPath}/${k}`] = v);
+                    }
+                });
+                if (data.settings?.holidays) {
+                    Object.entries(data.settings.holidays).forEach(([k,v]) => updates[`settings/holidays/${k}`] = v);
+                    nodeCounts.push(`settings/holidays: ${Object.keys(data.settings.holidays).length}`);
                 }
-            } catch (err) {
-                alert("Invalid JSON file or corrupted backup.");
-            }
+                const summary = nodeCounts.join('\n');
+                const backupDate = meta.generatedAt ? new Date(meta.generatedAt).toLocaleString() : 'Unknown';
+                if (confirm(`⚠️ RESTORE from backup?\n\nBackup date: ${backupDate}\nNodes to restore:\n${summary}\n\nExisting records with same IDs will be OVERWRITTEN. Proceed?`)) {
+                    update(ref(db), updates)
+                        .then(() => { window.showToast(`Restore complete — ${nodeCounts.length} nodes restored`); input.value = ''; })
+                        .catch(err => alert("Restore Failed: " + err.message));
+                } else { input.value = ''; }
+            } catch (err) { alert("Invalid JSON file or corrupted backup.\n" + err.message); }
         };
         reader.readAsText(file);
     };
 
-    // --- DATA TOOLS: CLEANUP & SEARCH (UPDATED) ---
+    // --- BULK SELECT HELPERS ---
+    window._cleanupRows = []; // holds {id, path, rowData} for bulk ops
+    window.toggleSelectAll = (checked) => {
+        document.querySelectorAll('.cleanup-cb').forEach(cb => cb.checked = checked);
+        window.updateSelectedCount();
+    };
+    window.updateSelectedCount = () => {
+        const n = document.querySelectorAll('.cleanup-cb:checked').length;
+        document.getElementById('selectedCount').textContent = n + ' selected';
+    };
+
+    // --- EXPORT CLEANUP CSV ---
+    window.exportCleanupCSV = () => {
+        const rows = window._cleanupRows;
+        if (!rows.length) { alert("Load data first, then export."); return; }
+        const headers = ['ID','Date','Owner','Details','Path'];
+        const lines = [headers.join(',')];
+        rows.forEach(r => {
+            const d = r.rowData;
+            lines.push([r.id, d.dateStr||'', (d.ownerName||'').replace(/,/g,''), (d.details||'').replace(/,/g,'').replace(/<[^>]+>/g,''), r.path].join(','));
+        });
+        const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+        const u = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href=u; a.download='oligo_cleanup_export.csv'; document.body.appendChild(a); a.click(); a.remove();
+        window.showToast("CSV exported — " + rows.length + " rows");
+    };
+
+    // --- ARCHIVE SELECTED ---
+    window.archiveSelected = () => {
+        const checked = [...document.querySelectorAll('.cleanup-cb:checked')];
+        if (!checked.length) { alert("Select at least one record first."); return; }
+        if (!confirm(`Archive ${checked.length} selected record(s)?\nThey will be moved to /archive and can be restored later.`)) return;
+        const updates = {};
+        const archiveDate = new Date().toISOString().split('T')[0];
+        checked.forEach(cb => {
+            const id = cb.dataset.id;
+            const path = cb.dataset.path;
+            const row = window._cleanupRows.find(r => r.id === id);
+            if (row) {
+                updates[`archive/${path.replace(/\//g,'_')}/${archiveDate}/${id}`] = row.rowData.raw || { _archived: true, _archivedAt: Date.now() };
+                updates[`${path}/${id}`] = null;
+            }
+        });
+        update(ref(db), updates)
+            .then(() => { window.showToast(`${checked.length} record(s) archived`); window.renderCleanupTable(); })
+            .catch(e => alert("Archive failed: " + e.message));
+    };
+
+    // --- DELETE SELECTED ---
+    window.deleteSelected = () => {
+        const checked = [...document.querySelectorAll('.cleanup-cb:checked')];
+        if (!checked.length) { alert("Select at least one record first."); return; }
+        if (!confirm(`⚠️ PERMANENTLY DELETE ${checked.length} selected record(s)?\nThis cannot be undone. Consider Archive instead.`)) return;
+        const updates = {};
+        checked.forEach(cb => { updates[`${cb.dataset.path}/${cb.dataset.id}`] = null; });
+        update(ref(db), updates)
+            .then(() => { window.showToast(`${checked.length} record(s) deleted`); window.renderCleanupTable(); })
+            .catch(e => alert("Delete failed: " + e.message));
+    };
+
+    // --- DATA TOOLS: CLEANUP ENGINE ---
     window.renderCleanupTable = () => {
         const target = document.getElementById('cleanupTarget').value;
         const searchInput = document.getElementById('cleanupSearch').value.toLowerCase().trim();
         const tbody = document.getElementById('cleanupTableBody');
-        
-        tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-blue-600"><i class="fas fa-spinner fa-spin"></i> Loading Data...</td></tr>';
+        window._cleanupRows = [];
+        document.getElementById('selectAllCleanup').checked = false;
+        document.getElementById('selectedCount').textContent = '0 selected';
+        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-blue-600"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
 
-        // 1. Handle "Wipe Specific User Data" Mode
+        // ── 1. WIPE USER ──
         if (target === 'user_wipe') {
-            if (!customersData && !farmersData && !producersData) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center">No user data available.</td></tr>'; return; }
-            
-            let results = [];
             const allUsers = [
-                ...Object.entries(customersData || {}).map(([id, d]) => ({id, ...d, type: 'Customer'})),
-                ...Object.entries(farmersData || {}).map(([id, d]) => ({id, ...d, type: 'Farmer'})),
-                ...Object.entries(producersData || {}).map(([id, d]) => ({id, ...d, type: 'Producer'})),
-                ...Object.entries(deliveryData || {}).map(([id, d]) => ({id, ...d, type: 'Delivery'}))
-            ];
-
-            results = allUsers.filter(u => 
-                (u.name && u.name.toLowerCase().includes(searchInput)) || 
-                (u.phone && u.phone.includes(searchInput)) ||
-                (u.email && u.email.toLowerCase().includes(searchInput))
-            );
-
+                ...Object.entries(customersData||{}).map(([id,d])=>({id,...d,type:'Customer'})),
+                ...Object.entries(farmersData||{}).map(([id,d])=>({id,...d,type:'Farmer'})),
+                ...Object.entries(producersData||{}).map(([id,d])=>({id,...d,type:'Producer'})),
+                ...Object.entries(deliveryData||{}).map(([id,d])=>({id,...d,type:'Delivery'}))
+            ].filter(u=>(u.name||'').toLowerCase().includes(searchInput)||(u.phone||'').includes(searchInput)||(u.email||'').toLowerCase().includes(searchInput));
             tbody.innerHTML = '';
-            if(results.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No users found. Try searching by name or phone.</td></tr>'; return; }
-
-            results.forEach(u => {
-                tbody.innerHTML += `
-                    <tr class="border-b hover:bg-red-50 group">
-                        <td class="p-3 text-xs font-mono">ID: ${u.id.substring(0,8)}...</td>
-                        <td class="p-3 font-bold">${u.name} <span class="text-xs font-normal text-gray-500">(${u.type})</span></td>
-                        <td class="p-3 text-xs text-gray-600">${u.phone || u.email || 'No Contact Info'}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="window.wipeUserData('${u.id}', '${u.name.replace(/'/g, "\\'")}')" class="text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-xs font-bold transition shadow-sm">
-                                <i class="fas fa-trash-alt mr-1"></i> WIPE ALL DATA
-                            </button>
-                        </td>
-                    </tr>`;
+            if (!allUsers.length) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No users found. Search by name or phone.</td></tr>'; return; }
+            allUsers.forEach(u => {
+                tbody.innerHTML += `<tr class="border-b hover:bg-red-50"><td class="p-3"></td><td class="p-3 text-xs font-mono">${u.id.substring(0,8)}...</td><td class="p-3 font-bold">${u.name} <span class="text-xs text-gray-500">(${u.type})</span></td><td class="p-3 text-xs text-gray-600">${u.phone||u.email||'-'}</td><td class="p-3 text-right"><button onclick="window.wipeUserData('${u.id}','${(u.name||'').replace(/'/g,"\\'")}') " class="text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fas fa-trash-alt mr-1"></i> WIPE ALL</button></td></tr>`;
             });
             return;
         }
 
-        // 2. Handle "Corrupted / Undefined" Mode
+        // ── 2. CORRUPTED (ENHANCED) ──
         if (target === 'corrupted') {
-            if (!ordersData) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center">No order data loaded.</td></tr>'; return; }
-            
-            tbody.innerHTML = '';
-            let count = 0;
-            
-            Object.entries(ordersData).forEach(([id, o]) => {
-                const isCorrupted = !o.createdAt || !o.status || o.createdAt === 'undefined' || o.customerName === 'undefined';
-                
-                if (isCorrupted) {
+            if (!ordersData) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No order data.</td></tr>'; return; }
+            tbody.innerHTML=''; let count=0;
+            const deliveryUIDs = new Set(Object.keys(deliveryData||{}));
+            const customerUIDs = new Set(Object.keys(customersData||{}));
+            Object.entries(ordersData).forEach(([id,o]) => {
+                const issues = [];
+                if (!o.createdAt || o.createdAt==='undefined') issues.push('Missing date');
+                if (!o.status) issues.push('Missing status');
+                if (o.customerName==='undefined' || (!o.customerName && !o.customerUid)) issues.push('No customer');
+                if (!o.totalAmount || isNaN(parseFloat(o.totalAmount))) issues.push('NaN amount');
+                if (parseFloat(o.totalAmount)===0 && o.status==='DELIVERED') issues.push('0-box delivered');
+                if (!o.items || !Array.isArray(o.items) || o.items.length===0) issues.push('No items[]');
+                if (o.customerUid && !customerUIDs.has(o.customerUid)) issues.push('Deleted customer UID');
+                if (o.deliveryUid && !deliveryUIDs.has(o.deliveryUid)) issues.push('Deleted delivery UID');
+                if (o.status==='PLACED' && o.createdAt && (Date.now()-o.createdAt)>30*86400000) issues.push('Stuck PLACED 30d+');
+                if (issues.length) {
                     count++;
-                    tbody.innerHTML += `
-                        <tr class="border-b hover:bg-yellow-50">
-                            <td class="p-3 text-xs text-red-500 font-bold">MISSING DATE</td>
-                            <td class="p-3 text-xs font-mono">${id}</td>
-                            <td class="p-3 text-xs">Status: ${o.status || 'NULL'} | Total: ${o.totalAmount || '?' }</td>
-                            <td class="p-3 text-right">
-                                <button onclick="window.deleteRecord('orders', '${id}')" class="text-red-600 bg-red-100 hover:bg-red-200 px-3 py-1 rounded text-xs font-bold transition">Fix/Delete</button>
-                            </td>
-                        </tr>`;
+                    const issueHtml = issues.map(i=>`<span class="bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-xs mr-1">${i}</span>`).join('');
+                    window._cleanupRows.push({id, path:'orders', rowData:{dateStr:o.createdAt?new Date(o.createdAt).toLocaleDateString():'—', ownerName:o.customerName||'Unknown', details:issues.join(', '), raw:o}});
+                    tbody.innerHTML += `<tr class="border-b hover:bg-yellow-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="orders" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono text-gray-500">${id.substring(0,6)}...<br>${o.createdAt?new Date(o.createdAt).toLocaleDateString():'—'}</td><td class="p-3 text-xs font-bold">${o.customerName||'Unknown'}</td><td class="p-3 text-xs">${issueHtml}</td><td class="p-3 text-right flex gap-1 justify-end"><button onclick="window.archiveRecord('orders','${id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded text-xs font-bold">Archive</button><button onclick="window.deleteRecord('orders','${id}')" class="text-red-500 bg-white border border-red-100 hover:bg-red-50 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
                 }
             });
-            
-            if (count === 0) tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle"></i> No corrupted records found!</td></tr>';
+            if (!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i> No corrupted records found!</td></tr>';
             return;
         }
 
-        // 3. Handle Active Batches Cleanup
-        if (target === 'batches_clean') {
-            if (!window.batchesData) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No active batches data loaded.</td></tr>'; return; }
-
-            tbody.innerHTML = '';
-            const flattened = [];
-            // Batches are nested: batches -> ProducerUID -> BatchID -> Data
-            Object.entries(window.batchesData).forEach(([prodId, batches]) => {
-                if (typeof batches === 'object') {
-                    Object.entries(batches).forEach(([batchId, b]) => {
-                        if (b && typeof b === 'object') {
-                            flattened.push({
-                                id: batchId,
-                                parentId: prodId,
-                                ...b
-                            });
-                        }
-                    });
-                }
+        // ── 3. MISSING deliveredAt BACKFILL ──
+        if (target === 'missing_deliveredat') {
+            if (!ordersData) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center">No order data.</td></tr>'; return; }
+            const missing = Object.entries(ordersData).filter(([,o]) => o.status==='DELIVERED' && !o.deliveredAt);
+            tbody.innerHTML='';
+            if (!missing.length) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i> All DELIVERED orders have deliveredAt!</td></tr>'; return; }
+            // Backfill all button
+            tbody.innerHTML = `<tr><td colspan="5" class="p-3 bg-amber-50 border-b"><div class="flex items-center gap-3"><span class="text-xs text-amber-700 font-bold">${missing.length} orders missing deliveredAt — will be set to updatedAt or createdAt</span><button onclick="window.backfillDeliveredAt()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow transition"><i class="fas fa-magic mr-1"></i> Backfill All</button></div></td></tr>`;
+            missing.slice(0,200).forEach(([id,o]) => {
+                const fallback = o.updatedAt || o.createdAt;
+                const fallbackStr = fallback ? new Date(fallback).toLocaleDateString() : '?';
+                const custName = (customersData&&customersData[o.customerUid]?.name) || o.customerName || 'Unknown';
+                window._cleanupRows.push({id, path:'orders', rowData:{dateStr:fallbackStr, ownerName:custName, details:`Will set deliveredAt = ${fallbackStr}`, raw:o}});
+                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="orders" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono">${id.substring(0,6)}...</td><td class="p-3 text-xs font-bold">${custName}</td><td class="p-3 text-xs text-amber-600">→ deliveredAt = ${fallbackStr}</td><td class="p-3 text-right"><button onclick="window.backfillOne('${id}',${fallback})" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded font-bold">Fix</button></td></tr>`;
             });
+            return;
+        }
 
-            // Filter by search if provided
-            const filtered = flattened.filter(b => {
-                if (!searchInput) return true;
-                return (b.item && b.item.toLowerCase().includes(searchInput)) || 
-                       (b.sownBy && b.sownBy.toLowerCase().includes(searchInput));
-            });
-
-            // Sort by date (Oldest first for cleanup)
-            filtered.sort((a,b) => (a.sowDate || 0) - (b.sowDate || 0));
-
-            let count = 0;
-            const limit = 500;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No active batch records found.</td></tr>';
-                return;
-            }
-
-            filtered.forEach(b => {
-                if (count >= limit) return;
+        // ── 4. STUCK PLACED ──
+        if (target === 'stuck_placed') {
+            if (!ordersData) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center">No order data.</td></tr>'; return; }
+            tbody.innerHTML=''; let count=0;
+            const cutoff = Date.now() - 30*86400000;
+            Object.entries(ordersData).filter(([,o])=>o.status==='PLACED'&&o.createdAt&&o.createdAt<cutoff).forEach(([id,o]) => {
                 count++;
-                
-                const dateStr = b.sowDate ? new Date(b.sowDate).toLocaleDateString() : 'Unknown Date';
-                const farmerName = b.sownBy || 'System/Unknown';
-                const details = `${b.item} (${b.qty} Trays) - ${b.status}`;
-                
-                tbody.innerHTML += `
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="p-3 text-xs whitespace-nowrap">
-                            <span class="font-mono text-gray-500">Sown: ${dateStr}</span>
-                        </td>
-                        <td class="p-3 text-sm font-bold text-gray-700">${farmerName}</td>
-                        <td class="p-3 text-xs text-gray-600">${details}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="window.deleteRecord('batches/${b.parentId}', '${b.id}')" class="text-red-500 hover:text-red-700 bg-white border border-red-100 hover:bg-red-50 px-3 py-1 rounded text-xs font-bold transition">Delete</button>
-                        </td>
-                    </tr>
-                `;
+                const days = Math.floor((Date.now()-o.createdAt)/86400000);
+                const custName = (customersData&&customersData[o.customerUid]?.name)||o.customerName||'Unknown';
+                const dateStr = new Date(o.createdAt).toLocaleDateString();
+                window._cleanupRows.push({id,path:'orders',rowData:{dateStr,ownerName:custName,details:`Stuck ${days}d — PLACED`,raw:o}});
+                tbody.innerHTML+=`<tr class="border-b hover:bg-orange-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="orders" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono">${id.substring(0,6)}...<br>${dateStr}</td><td class="p-3 text-xs font-bold">${custName}</td><td class="p-3 text-xs"><span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-bold">Stuck ${days} days</span> ${o.totalAmount||0} Boxes</td><td class="p-3 text-right flex gap-1 justify-end"><button onclick="window.archiveRecord('orders','${id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded text-xs font-bold">Archive</button><button onclick="window.deleteRecord('orders','${id}')" class="text-red-500 bg-white border border-red-100 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
+            });
+            if (!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i> No orders stuck in PLACED!</td></tr>';
+            return;
+        }
+
+        // ── 5. ZERO-BOX ORDERS ──
+        if (target === 'zero_box') {
+            if (!ordersData) { tbody.innerHTML='<tr><td colspan="5">No data.</td></tr>'; return; }
+            tbody.innerHTML=''; let count=0;
+            Object.entries(ordersData).filter(([,o])=>parseFloat(o.totalAmount||1)===0).forEach(([id,o])=>{
+                count++;
+                const custName=(customersData&&customersData[o.customerUid]?.name)||o.customerName||'Unknown';
+                const dateStr=o.createdAt?new Date(o.createdAt).toLocaleDateString():'—';
+                window._cleanupRows.push({id,path:'orders',rowData:{dateStr,ownerName:custName,details:`0 boxes — ${o.status}`,raw:o}});
+                tbody.innerHTML+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="orders" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono">${id.substring(0,6)}...<br>${dateStr}</td><td class="p-3 text-xs font-bold">${custName}</td><td class="p-3 text-xs"><span class="badge badge-${o.status==='DELIVERED'?'delivered':o.status==='CANCELLED'?'cancelled':'pending'}">${o.status}</span> 0 Boxes</td><td class="p-3 text-right"><button onclick="window.deleteRecord('orders','${id}')" class="text-red-500 bg-white border border-red-100 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
+            });
+            if (!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i> No zero-box orders!</td></tr>';
+            return;
+        }
+
+        // ── 6. ARCHIVE VIEW ──
+        if (target === 'archive_view') {
+            tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-blue-600"><i class="fas fa-spinner fa-spin"></i> Loading archive...</td></tr>';
+            const archiveRef = ref(db, 'archive');
+            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js").then(({get})=>{
+                get(archiveRef).then(snap=>{
+                    const arch = snap.val()||{};
+                    tbody.innerHTML='';
+                    if (!Object.keys(arch).length) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No archived records yet.</td></tr>'; return; }
+                    let total=0;
+                    Object.entries(arch).forEach(([node,dates])=>{
+                        Object.entries(dates).forEach(([date,items])=>{
+                            Object.entries(items).forEach(([id,item])=>{
+                                total++;
+                                if(total>300) return;
+                                tbody.innerHTML+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"></td><td class="p-3 text-xs font-mono">${id.substring(0,8)}...</td><td class="p-3 text-xs font-bold text-indigo-700">${node}</td><td class="p-3 text-xs text-gray-500">Archived ${date}</td><td class="p-3 text-right"><button onclick="window.restoreArchived('${node}','${date}','${id}')" class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded font-bold">Restore</button></td></tr>`;
+                            });
+                        });
+                    });
+                    if(!total) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">Archive is empty.</td></tr>';
+                });
             });
             return;
         }
 
-        // 4. Handle Standard Categories (Orders, Logs, Shortfall)
-        let sourceRef = ref(db, 'orders'); // Default
-        if (target === 'shortfall_clean') sourceRef = ref(db, 'orders');
-        else if (target === 'unknown_cust') sourceRef = ref(db, 'orders');
-        else if (target === 'maintenance_reports') sourceRef = ref(db, 'maintenance_reports');
-        else if (target === 'production_logs') sourceRef = ref(db, 'production_logs');
-        else if (target === 'orders') sourceRef = ref(db, 'orders');
+        // ── 7. GENERIC NODE TARGETS ──
+        const nodeTargetMap = {
+            daily_logs_clean:   { path:'daily_logs',           data:()=>window.dailyLogsData,     ownerFn:(id,o)=>o.completedBy||'System',     detailFn:(id,o)=>o.task||id },
+            store_logs_clean:   { path:'store_logs',           data:()=>storeLogs,                 ownerFn:(id,o)=>o.user||'Store',             detailFn:(id,o)=>o.action||'-' },
+            sowing_tasks_clean: { path:'sowingTasks',          data:()=>window.sowingTasksData,    ownerFn:(id,o)=>o.assignedTo||'Farm',        detailFn:(id,o)=>`${o.item||'?'} (${o.qty||0} trays)`, nested:true },
+            seed_trials_clean:  { path:'seed_trials',          data:()=>seedData,                  ownerFn:(id,o)=>o.tester?.name||'Lab',       detailFn:(id,o)=>`${o.variety||'?'} — ${o.vendor||'?'}` },
+            farm_crops_clean:   { path:'farmCrops',            data:()=>farmCrops,                 ownerFn:(id,o)=>o.farmer||'Farm',            detailFn:(id,o)=>o.cropName||'-' },
+            harvests_clean:     { path:'harvests',             data:()=>harvestData,               ownerFn:(id,o)=>o.farmer||'Farm',            detailFn:(id,o)=>`${o.item||'?'} — ${o.weight||'?'}kg` },
+            partner_transactions_clean: { path:'partner_transactions', data:()=>walletData,        ownerFn:(id,o)=>o.partnerName||o.partnerId?.substring(0,8)||'Partner', detailFn:(id,o)=>`₹${o.amount||0} — ${o.type||'tx'}` },
+            receivables_clean:  { path:'receivables',          data:()=>receivablesData,           ownerFn:(id,o)=>o.customerName||o.customerId?.substring(0,8)||'?', detailFn:(id,o)=>`₹${o.amount||0} — ${o.status||''}` },
+        };
 
-        // If data is already in memory
-        if((target === 'orders' || target === 'shortfall_clean' || target === 'unknown_cust') && ordersData) { renderStandardRows(ordersData, target, searchInput); return; }
-        if(target === 'maintenance_reports' && maintenanceData) { renderStandardRows(maintenanceData, target, searchInput); return; }
+        const nodeConf = nodeTargetMap[target];
+        if (nodeConf) {
+            let rawData = nodeConf.data();
+            // Flatten nested structures (sowingTasks: uid -> tasks)
+            if (nodeConf.nested && rawData) {
+                const flat = {};
+                Object.entries(rawData).forEach(([uid, tasks]) => {
+                    if (typeof tasks==='object') Object.entries(tasks).forEach(([tid,t])=>{ flat[tid]={...t, _parentId:uid}; });
+                });
+                rawData = flat;
+            }
+            if (!rawData||!Object.keys(rawData).length) { tbody.innerHTML=`<tr><td colspan="5" class="p-4 text-center text-gray-400">No data in /${nodeConf.path} yet.</td></tr>`; return; }
+            renderGenericRows(rawData, nodeConf, searchInput);
+            return;
+        }
 
-        onValue(sourceRef, (snap) => {
-            const data = snap.val() || {};
-            renderStandardRows(data, target, searchInput);
-        }, { onlyOnce: true });
+        // ── 8. STANDARD TARGETS (orders, shortfall, unknown_cust, maintenance_reports, production_logs, batches_clean) ──
+        if ((target==='orders'||target==='shortfall_clean'||target==='unknown_cust') && ordersData) { renderStandardRows(ordersData,target,searchInput); return; }
+        if (target==='maintenance_reports' && maintenanceData) { renderStandardRows(maintenanceData,target,searchInput); return; }
+        if (target==='batches_clean') {
+            if (!window.batchesData) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No batch data.</td></tr>'; return; }
+            const flat=[]; Object.entries(window.batchesData).forEach(([pid,batches])=>{ if(typeof batches==='object') Object.entries(batches).forEach(([bid,b])=>{ if(b&&typeof b==='object') flat.push({id:bid,parentId:pid,...b}); }); });
+            renderBatchRows(flat, searchInput); return;
+        }
+        // fallback fetch from Firebase
+        const pathMap = { orders:'orders', shortfall_clean:'orders', unknown_cust:'orders', maintenance_reports:'maintenance_reports', production_logs:'production_logs' };
+        const fbPath = pathMap[target]||target;
+        onValue(ref(db, fbPath), snap=>{ renderStandardRows(snap.val()||{}, target, searchInput); }, {onlyOnce:true});
     };
+
+    // ── GENERIC ROW RENDERER ──
+    function renderGenericRows(data, conf, searchTerm) {
+        const tbody = document.getElementById('cleanupTableBody');
+        tbody.innerHTML=''; let count=0;
+        const cleanupDateSingle = document.getElementById('cleanupDateSingle')?.value||'';
+        const cleanupMonth = document.getElementById('cleanupMonth')?.value||'';
+        const cleanupYear = document.getElementById('cleanupYear')?.value||'';
+        const entries = Object.entries(data).sort((a,b)=>(b[1].createdAt||b[1].timestamp||0)-(a[1].createdAt||a[1].timestamp||0));
+        entries.forEach(([id,item]) => {
+            if(count>=500) return;
+            const dateVal = item.createdAt||item.timestamp||item.sowDate||0;
+            const dateObj = dateVal?new Date(dateVal):null;
+            if(dateObj){
+                if(cleanupDateSingle && dateObj.toISOString().split('T')[0]!==cleanupDateSingle) return;
+                if(cleanupMonth!=='' && dateObj.getMonth()!==parseInt(cleanupMonth)) return;
+                if(cleanupYear && dateObj.getFullYear()!==parseInt(cleanupYear)) return;
+            } else if(cleanupDateSingle||cleanupMonth!==''||cleanupYear) return;
+            const dateStr = dateObj?dateObj.toLocaleDateString():'—';
+            const ownerName = conf.ownerFn(id,item);
+            const details = conf.detailFn(id,item);
+            const searchStr = (ownerName+details+id+dateStr).toLowerCase();
+            if(searchTerm && !searchStr.includes(searchTerm)) return;
+            const deletePath = item._parentId ? `${conf.path}/${item._parentId}` : conf.path;
+            window._cleanupRows.push({id, path:deletePath, rowData:{dateStr,ownerName,details,raw:item}});
+            count++;
+            tbody.innerHTML+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="${deletePath}" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono text-gray-500">${id.substring(0,6)}...<br>${dateStr}</td><td class="p-3 text-xs font-bold text-gray-700">${ownerName}</td><td class="p-3 text-xs text-gray-600">${details}</td><td class="p-3 text-right flex gap-1 justify-end"><button onclick="window.archiveRecord('${deletePath}','${id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded text-xs font-bold">Archive</button><button onclick="window.deleteRecord('${deletePath}','${id}')" class="text-red-500 bg-white border border-red-100 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
+        });
+        if(!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No records match filters.</td></tr>';
+    }
+
+    // ── BATCH ROWS ──
+    function renderBatchRows(flat, searchInput) {
+        const tbody = document.getElementById('cleanupTableBody');
+        tbody.innerHTML=''; let count=0;
+        flat.filter(b=>!searchInput||(b.item||'').toLowerCase().includes(searchInput)||(b.sownBy||'').toLowerCase().includes(searchInput))
+            .sort((a,b)=>(a.sowDate||0)-(b.sowDate||0))
+            .forEach(b=>{
+                if(count++>=500) return;
+                const dateStr=b.sowDate?new Date(b.sowDate).toLocaleDateString():'—';
+                const delPath=`batches/${b.parentId}`;
+                window._cleanupRows.push({id:b.id,path:delPath,rowData:{dateStr,ownerName:b.sownBy||'?',details:`${b.item} (${b.qty} Trays) — ${b.status}`,raw:b}});
+                tbody.innerHTML+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${b.id}" data-path="${delPath}" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono">Sown: ${dateStr}</td><td class="p-3 text-xs font-bold">${b.sownBy||'?'}</td><td class="p-3 text-xs">${b.item} (${b.qty} Trays) — ${b.status}</td><td class="p-3 text-right"><button onclick="window.deleteRecord('${delPath}','${b.id}')" class="text-red-500 bg-white border border-red-100 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
+            });
+        if(!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No batch records found.</td></tr>';
+    }
 
     function renderStandardRows(data, target, searchTerm) {
         const tbody = document.getElementById('cleanupTableBody');
         tbody.innerHTML = '';
-        
-        // Cleanup date filters
-        const cleanupDateSingle = document.getElementById('cleanupDateSingle') ? document.getElementById('cleanupDateSingle').value : '';
-        const cleanupMonth = document.getElementById('cleanupMonth') ? document.getElementById('cleanupMonth').value : '';
-        const cleanupYear = document.getElementById('cleanupYear') ? document.getElementById('cleanupYear').value : '';
-
-        // Sort Descending (Newest First) by default
-        const entries = Object.entries(data).sort((a,b) => {
-            if(target === 'unknown_cust') {
-                return (parseFloat(b[1].totalAmount) || 0) - (parseFloat(a[1].totalAmount) || 0);
-            }
-            const dateA = a[1].createdAt || a[1].timestamp || 0;
-            const dateB = b[1].createdAt || b[1].timestamp || 0;
-            return dateB - dateA; 
+        const cleanupDateSingle = document.getElementById('cleanupDateSingle')?.value||'';
+        const cleanupMonth = document.getElementById('cleanupMonth')?.value||'';
+        const cleanupYear = document.getElementById('cleanupYear')?.value||'';
+        const entries = Object.entries(data).sort((a,b)=>{
+            if(target==='unknown_cust') return (parseFloat(b[1].totalAmount)||0)-(parseFloat(a[1].totalAmount)||0);
+            return (b[1].createdAt||b[1].timestamp||0)-(a[1].createdAt||a[1].timestamp||0);
         });
+        let count=0;
+        for (const [id,item] of entries) {
+            if(count>=500) break;
+            const dateVal=item.createdAt||item.timestamp||0;
+            const dateObj=dateVal?new Date(dateVal):null;
+            const dateStr=dateObj?dateObj.toLocaleDateString()+' '+dateObj.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'<span class="text-red-400">Undefined</span>';
+            const yearStr=dateObj?dateObj.getFullYear().toString():'';
+            if(dateObj){
+                if(cleanupDateSingle && dateObj.toISOString().split('T')[0]!==cleanupDateSingle) continue;
+                if(cleanupMonth!=='' && dateObj.getMonth()!==parseInt(cleanupMonth)) continue;
+                if(cleanupYear && dateObj.getFullYear()!==parseInt(cleanupYear)) continue;
+            } else if(cleanupDateSingle||cleanupMonth!==''||cleanupYear) continue;
 
-        let count = 0;
-        const limit = 500; 
-
-        for (const [id, item] of entries) {
-            const dateVal = item.createdAt || item.timestamp || 0;
-            const dateObj = dateVal ? new Date(dateVal) : null;
-            const dateStr = dateObj ? dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '<span class="text-red-400">Undefined Date</span>';
-            const yearStr = dateObj ? dateObj.getFullYear().toString() : "";
-            
-            // Apply cleanup date filters
-            if (dateObj) {
-                if (cleanupDateSingle) {
-                    const isoDate = dateObj.toISOString().split('T')[0];
-                    if (isoDate !== cleanupDateSingle) continue;
+            let ownerName='Unknown', details='', searchString='', shouldRender=true, bgClass='hover:bg-gray-50';
+            if(target==='orders'||target==='shortfall_clean'||target==='unknown_cust'){
+                ownerName=(customersData&&customersData[item.customerUid]?.name)||item.customerName||'Unknown';
+                const amtBadge=`<span class="bg-gray-800 text-white px-2 py-0.5 rounded text-xs font-bold">${item.totalAmount||0} Boxes</span>`;
+                details=`<span class="badge ${item.status==='DELIVERED'?'badge-delivered':item.status==='SHORTFALL'?'badge-shortfall':item.status==='CANCELLED'?'badge-cancelled':'badge-pending'}">${item.status}</span> ${amtBadge}`;
+                searchString=(ownerName||'')+(item.status||'')+id+yearStr;
+                if(target==='shortfall_clean'&&item.status!=='SHORTFALL'&&item.status!=='CANCELLED') shouldRender=false;
+                if(target==='unknown_cust'){
+                    const isUnk=!item.customerName||item.customerName==='Unknown'||item.customerName==='undefined'||!item.customerUid;
+                    if(!isUnk) shouldRender=false; else bgClass='hover:bg-yellow-50 bg-yellow-50/30';
                 }
-                if (cleanupMonth !== '' && dateObj.getMonth() !== parseInt(cleanupMonth)) continue;
-                if (cleanupYear && dateObj.getFullYear() !== parseInt(cleanupYear)) continue;
-            } else if (cleanupDateSingle || cleanupMonth !== '' || cleanupYear) {
-                // Item has no date and a date filter is active — skip it
-                continue;
+            } else if(target==='maintenance_reports'){
+                ownerName=item.reportedBy?.name||'System';
+                details=`${item.issueType||'?'} — ${(item.description||'').substring(0,30)}...`;
+                searchString=(item.issueType||'')+(item.description||'')+yearStr;
+            } else if(target==='production_logs'){
+                ownerName=item.farmer||'Prod';
+                details=`${item.action||'?'} — ${item.item||'?'}`;
+                searchString=(item.action||'')+(item.item||'')+(item.farmer||'')+yearStr;
             }
-
-            let ownerName = 'Unknown';
-            let details = '';
-            let searchString = '';
-            let shouldRender = true;
-            let bgClass = "hover:bg-gray-50";
-
-            if(target === 'orders' || target === 'shortfall_clean' || target === 'unknown_cust') {
-                if (item.customerUid && customersData && customersData[item.customerUid]) {
-                    ownerName = customersData[item.customerUid].name;
-                } else {
-                    ownerName = item.customerName || 'Unknown';
-                }
-                
-                // Highlight the boxes to find the '122'
-                const amountBadge = `<span class="bg-gray-800 text-white px-2 py-0.5 rounded text-xs font-bold">${item.totalAmount || 0} Boxes</span>`;
-                
-                details = `<span class="badge ${item.status === 'DELIVERED' ? 'badge-delivered' : (item.status === 'SHORTFALL' ? 'badge-shortfall' : (item.status === 'CANCELLED' ? 'badge-cancelled' : 'badge-pending'))}">${item.status}</span> ${amountBadge}`;
-                searchString = (ownerName || "") + (item.status || "") + id + yearStr;
-
-                // SPECIAL FILTER FOR SHORTFALL MODE
-                if (target === 'shortfall_clean') {
-                     if (item.status !== 'SHORTFALL' && item.status !== 'CANCELLED') shouldRender = false;
-                }
-
-                // SPECIAL FILTER FOR UNKNOWN CUST (DETECTIVE MODE)
-                if (target === 'unknown_cust') {
-                    const isUnknown = !item.customerName || item.customerName === 'Unknown' || item.customerName === 'undefined' || !item.customerUid;
-                    if (!isUnknown) shouldRender = false;
-                    else bgClass = "hover:bg-yellow-50 bg-yellow-50/30"; // Highlight these
-                }
-
-            } else if(target === 'maintenance_reports') {
-                ownerName = item.reportedBy?.name || 'System';
-                details = `${item.issueType} - ${item.description?.substring(0,30)}...`;
-                searchString = (item.issueType || "") + (item.description || "") + yearStr;
-            } else if(target === 'production_logs') {
-                ownerName = item.farmer || 'Prod Team';
-                details = `${item.action} - ${item.item}`;
-                searchString = (item.action || "") + (item.item || "") + (item.farmer || "") + yearStr;
-            }
-
-            if (shouldRender && (!searchTerm || searchString.toLowerCase().includes(searchTerm))) {
-                if (count >= limit) break;
+            if(shouldRender&&(!searchTerm||searchString.toLowerCase().includes(searchTerm))){
                 count++;
-                
-                // FIXED: Correct delete path for unknown_cust
-                const deletePath = (target === 'shortfall_clean' || target === 'unknown_cust') ? 'orders' : target;
-
-                tbody.innerHTML += `
-                    <tr class="border-b ${bgClass}">
-                        <td class="p-3 text-xs whitespace-nowrap">
-                            <span class="font-mono text-gray-500">${id.substring(0,6)}...</span><br>
-                            ${dateStr}
-                        </td>
-                        <td class="p-3 text-sm font-bold text-gray-700">${ownerName}</td>
-                        <td class="p-3 text-xs text-gray-600">${details}</td>
-                        <td class="p-3 text-right">
-                            <button onclick="window.deleteRecord('${deletePath}', '${id}')" class="text-red-500 hover:text-red-700 bg-white border border-red-100 hover:bg-red-50 px-3 py-1 rounded text-xs font-bold transition">Delete</button>
-                        </td>
-                    </tr>
-                `;
+                const delPath=(target==='shortfall_clean'||target==='unknown_cust')?'orders':target;
+                window._cleanupRows.push({id,path:delPath,rowData:{dateStr:dateObj?.toLocaleDateString()||'—',ownerName,details:details.replace(/<[^>]+>/g,''),raw:item}});
+                tbody.innerHTML+=`<tr class="border-b ${bgClass}"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="${delPath}" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs whitespace-nowrap"><span class="font-mono text-gray-500">${id.substring(0,6)}...</span><br>${dateStr}</td><td class="p-3 text-sm font-bold text-gray-700">${ownerName}</td><td class="p-3 text-xs text-gray-600">${details}</td><td class="p-3 text-right flex gap-1 justify-end"><button onclick="window.archiveRecord('${delPath}','${id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded text-xs font-bold">Archive</button><button onclick="window.deleteRecord('${delPath}','${id}')" class="text-red-500 bg-white border border-red-100 hover:bg-red-50 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
             }
         }
-
-        if(count === 0) tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No records found matching criteria.</td></tr>';
+        if(!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No records found matching criteria.</td></tr>';
     }
 
     window.deleteRecord = (path, id) => {
-        if(confirm("⚠️ PERMANENTLY DELETE this record?\nThis cannot be undone.")) {
+        if(confirm("⚠️ PERMANENTLY DELETE?\nConsider Archive instead — records can be recovered.")) {
             remove(ref(db, `${path}/${id}`))
-                .then(() => { window.showToast("Record Deleted"); window.renderCleanupTable(); })
-                .catch(e => alert(e.message));
+                .then(()=>{ window.showToast("Record deleted"); window.renderCleanupTable(); })
+                .catch(e=>alert(e.message));
         }
+    };
+
+    window.archiveRecord = (path, id) => {
+        const archiveDate = new Date().toISOString().split('T')[0];
+        const safeKey = path.replace(/\//g,'_');
+        const row = window._cleanupRows.find(r=>r.id===id) || {};
+        const updates = {};
+        updates[`archive/${safeKey}/${archiveDate}/${id}`] = row.rowData?.raw || {_archived:true,_at:Date.now()};
+        updates[`${path}/${id}`] = null;
+        update(ref(db), updates)
+            .then(()=>{ window.showToast("Archived — recoverable from Archive view"); window.renderCleanupTable(); })
+            .catch(e=>alert(e.message));
+    };
+
+    window.restoreArchived = (node, date, id) => {
+        if(!confirm(`Restore this archived record back to /${node}?`)) return;
+        const srcPath = `archive/${node}/${date}/${id}`;
+        import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js").then(({get})=>{
+            get(ref(db, srcPath)).then(snap=>{
+                const val = snap.val();
+                if(!val) { alert("Archive record not found."); return; }
+                const updates = {};
+                updates[`${node}/${id}`] = val;
+                updates[srcPath] = null;
+                update(ref(db), updates).then(()=>{ window.showToast("Record restored to /"+node); window.renderCleanupTable(); });
+            });
+        });
+    };
+
+    window.backfillDeliveredAt = () => {
+        if(!ordersData) return;
+        const missing = Object.entries(ordersData).filter(([,o])=>o.status==='DELIVERED'&&!o.deliveredAt);
+        if(!confirm(`Backfill deliveredAt on ${missing.length} orders?\nWill use updatedAt if present, else createdAt.`)) return;
+        const updates={};
+        missing.forEach(([id,o])=>{ updates[`orders/${id}/deliveredAt`] = o.updatedAt||o.createdAt||Date.now(); });
+        update(ref(db), updates).then(()=>window.showToast(`Backfilled ${missing.length} orders`)).catch(e=>alert(e.message));
+    };
+
+    window.backfillOne = (id, ts) => {
+        update(ref(db,`orders/${id}`),{deliveredAt:ts}).then(()=>{ window.showToast("deliveredAt set"); window.renderCleanupTable(); }).catch(e=>alert(e.message));
     };
 
     // --- FIXED: WIPE USER DATA FUNCTION (UPDATED LOGIC) ---
