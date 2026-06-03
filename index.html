@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Oligo Admin & Data Tools</title>
+code
+Code
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -56,13 +58,15 @@
         #reportContainer { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; background: white; }
         #print-overlay { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; }
         #print-overlay * { visibility: visible; }
-        #reportActions { display: none !important; }
+        #reportActions { display: none; }
         table { width: 100% !important; border-collapse: collapse; }
         th, td { border: 1px solid #ddd !important; color: black !important; padding: 5px; font-size: 10pt; }
     }
 </style>
 </head>
 <body class="text-gray-800 h-screen overflow-hidden flex flex-col">
+code
+Code
 <!-- PRINT OVERLAY -->
 <div id="print-overlay" class="p-8 bg-white"></div>
 
@@ -194,28 +198,14 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <!-- Backup & Restore -->
                     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <div class="flex items-center gap-3 mb-4 border-b pb-3"><div class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-database text-blue-600 text-xl"></i></div><div><h3 class="font-bold text-gray-800">System Data</h3><p class="text-xs text-gray-500">Full backup covers all 21 nodes.</p></div></div>
-                        <!-- Last backup warning -->
-                        <div id="backupWarning" class="hidden mb-3 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-center gap-2">
-                            <i class="fas fa-exclamation-triangle text-amber-500 text-sm"></i>
-                            <span id="backupWarningText" class="text-xs text-amber-700 font-medium flex-1"></span>
-                        </div>
-                        <div id="backupOk" class="hidden mb-3 bg-green-50 border border-green-200 rounded-lg px-3 py-2 flex items-center gap-2">
-                            <i class="fas fa-check-circle text-green-500 text-sm"></i>
-                            <span id="backupOkText" class="text-xs text-green-700 font-medium flex-1"></span>
-                        </div>
-                        <!-- Backup manifest -->
-                        <div id="backupManifest" class="hidden mb-3 bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-600">
-                            <p class="font-bold text-gray-700 mb-1">Last backup contained:</p>
-                            <div id="backupManifestBody" class="grid grid-cols-2 gap-x-3 gap-y-0.5"></div>
-                        </div>
+                        <div class="flex items-center gap-3 mb-4 border-b pb-3"><div class="bg-blue-100 p-2 rounded-lg"><i class="fas fa-database text-blue-600 text-xl"></i></div><div><h3 class="font-bold text-gray-800">System Data</h3><p class="text-xs text-gray-500">Backup or Restore full database.</p></div></div>
                         <div class="space-y-3">
-                            <button onclick="downloadBackup()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fas fa-file-export mr-2"></i> Download Full Backup</button>
+                            <button onclick="downloadBackup()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fas fa-file-export mr-2"></i> Download Backup</button>
                             <div class="relative">
                                 <input type="file" id="restoreFile" class="hidden" accept=".json" onchange="window.restoreData(this)">
                                 <button onclick="document.getElementById('restoreFile').click()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 rounded-lg shadow transition"><i class="fas fa-file-import mr-2"></i> Restore / Import Data</button>
                             </div>
-                            <p class="text-xs text-center text-gray-400">Restore merges all nodes. Existing IDs overwritten.</p>
+                            <p class="text-xs text-center text-gray-400">Restore will merge data from JSON file.</p>
                         </div>
                     </div>
                     
@@ -228,38 +218,14 @@
                                 <div>
                                     <label class="text-xs font-bold text-gray-500 uppercase">Target Data</label>
                                     <select id="cleanupTarget" onchange="renderCleanupTable()" class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 focus:ring-2 focus:ring-red-200 outline-none mt-1">
-                                        <optgroup label="Orders">
-                                            <option value="orders">All Orders (General)</option>
-                                            <option value="unknown_cust">👤 Unknown Customer Orders</option>
-                                            <option value="shortfall_clean">📉 Shortfall / Cancelled Orders</option>
-                                            <option value="stuck_placed">⏳ Stuck in PLACED 30+ Days</option>
-                                            <option value="zero_box">📦 Zero-Box Orders</option>
-                                            <option value="corrupted">⚠️ Corrupted / Undefined Records</option>
-                                            <option value="missing_deliveredat">🔧 DELIVERED missing deliveredAt (Backfill)</option>
-                                        </optgroup>
-                                        <optgroup label="People">
-                                            <option value="user_wipe">🚫 Wipe Specific User Data</option>
-                                        </optgroup>
-                                        <optgroup label="Logs & Operations">
-                                            <option value="maintenance_reports">Maintenance Logs</option>
-                                            <option value="production_logs">Production Logs</option>
-                                            <option value="daily_logs_clean">📋 Daily Logs</option>
-                                            <option value="store_logs_clean">🏪 Store Logs</option>
-                                        </optgroup>
-                                        <optgroup label="Farm">
-                                            <option value="batches_clean">🌱 Active Batches</option>
-                                            <option value="sowing_tasks_clean">🌾 Sowing Tasks</option>
-                                            <option value="seed_trials_clean">🧪 Seed Trials</option>
-                                            <option value="farm_crops_clean">🥬 Farm Crops</option>
-                                            <option value="harvests_clean">🌿 Harvests</option>
-                                        </optgroup>
-                                        <optgroup label="Finance">
-                                            <option value="partner_transactions_clean">💰 Partner Transactions</option>
-                                            <option value="receivables_clean">📊 Receivables</option>
-                                        </optgroup>
-                                        <optgroup label="Archive">
-                                            <option value="archive_view">🗂️ View Archive (Deleted Records)</option>
-                                        </optgroup>
+                                        <option value="orders">All Orders (General)</option>
+                                        <option value="unknown_cust">👤 Orders with "Unknown" Customer (Fix Reports)</option>
+                                        <option value="shortfall_clean">📉 Cleanup Shortfall / Cancelled Orders</option>
+                                        <option value="corrupted">⚠️ Corrupted / Undefined Records (Fix Reports)</option>
+                                        <option value="user_wipe">🚫 Wipe Specific User Data (Transactions)</option>
+                                        <option value="maintenance_reports">Maintenance Logs</option>
+                                        <option value="production_logs">Production Logs</option>
+                                        <option value="batches_clean">🌱 Active Batches (Cleanup Old/Test)</option>
                                     </select>
                                 </div>
                                 <div>
@@ -289,24 +255,10 @@
                                 </div>
                             </div>
 
-                            <!-- Bulk action toolbar -->
-                            <div id="bulkToolbar" class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
-                                <label class="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer select-none">
-                                    <input type="checkbox" id="selectAllCleanup" onchange="window.toggleSelectAll(this.checked)" class="rounded">
-                                    Select All
-                                </label>
-                                <span id="selectedCount" class="text-xs text-gray-400">0 selected</span>
-                                <div class="flex-1"></div>
-                                <button onclick="window.exportCleanupCSV()" class="text-xs bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg font-bold transition"><i class="fas fa-file-csv mr-1"></i> Export CSV</button>
-                                <button onclick="window.archiveSelected()" class="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-1.5 rounded-lg font-bold transition"><i class="fas fa-archive mr-1"></i> Archive Selected</button>
-                                <button onclick="window.deleteSelected()" class="text-xs bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3 py-1.5 rounded-lg font-bold transition"><i class="fas fa-trash mr-1"></i> Delete Selected</button>
-                            </div>
-
                             <div class="h-80 overflow-y-auto border border-gray-200 rounded-lg custom-scroll bg-white relative">
                                 <table class="w-full text-left text-xs">
                                     <thead class="bg-gray-100 sticky top-0 z-10 shadow-sm text-gray-700">
                                         <tr>
-                                            <th class="p-3 border-b w-8"></th>
                                             <th class="p-3 border-b">Date / ID</th>
                                             <th class="p-3 border-b">User / Owner</th>
                                             <th class="p-3 border-b">Transaction Details</th>
@@ -314,11 +266,11 @@
                                         </tr>
                                     </thead>
                                     <tbody id="cleanupTableBody" class="divide-y divide-gray-100">
-                                        <tr><td colspan="5" class="p-8 text-center text-gray-400">Select a target category above and click Load.</td></tr>
+                                        <tr><td colspan="4" class="p-8 text-center text-gray-400">Select a target category above and click Load.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="text-xs text-gray-400 italic mt-2 text-right">Archive moves records to /archive instead of permanent delete. "Wipe User" also removes logs.</div>
+                            <div class="text-xs text-gray-400 italic mt-2 text-right">Note: "Wipe User" deletes all orders and logs linked to that person.</div>
                         </div>
                     </div>
                 </div>
@@ -403,7 +355,87 @@
             <div id="tab-producers" class="view-content hidden-force"><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Producers List</div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="border-b"><tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Email</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Action</th></tr></thead><tbody id="producersTableBody" class="divide-y divide-gray-100 bg-white"></tbody></table></div></div></div>
             <div id="tab-farmers" class="view-content hidden-force"><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Farmers List</div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="border-b"><tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Action</th></tr></thead><tbody id="farmersTableBody" class="divide-y divide-gray-100 bg-white"></tbody></table></div></div></div>
             <div id="tab-delivery" class="view-content hidden-force"><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div class="p-4 border-b bg-gray-50 font-bold text-gray-700">Delivery Partners</div><div class="overflow-x-auto"><table class="w-full text-left"><thead class="border-b"><tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Phone</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Action</th></tr></thead><tbody id="deliveryTableBody" class="divide-y divide-gray-100 bg-white"></tbody></table></div></div></div>
-            <div id="tab-customers" class="view-content hidden-force"><div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-4"><input type="text" id="customerSearchInput" class="w-full pl-4 pr-4 py-2 border rounded-lg outline-none focus:border-green-500" placeholder="Search Customer..."></div><div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left"><thead class="border-b"><tr><th class="px-4 py-3">Name</th><th class="px-4 py-3">Firm Name</th><th class="px-4 py-3">Contact</th><th class="px-4 py-3">Address</th></tr></thead><tbody id="customersTableBody" class="divide-y divide-gray-100 bg-white"></tbody></table></div></div></div>
+            <div id="tab-customers" class="view-content hidden-force">
+                <!-- Analytics Summary Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="custAnalyticsCards">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Total Customers</span>
+                        <span class="text-3xl font-bold text-slate-800" id="caStat-total">—</span>
+                        <span class="text-xs text-gray-400">Registered accounts</span>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Active This Month</span>
+                        <span class="text-3xl font-bold text-emerald-600" id="caStat-active">—</span>
+                        <span class="text-xs text-gray-400">Placed ≥1 order</span>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">New This Month</span>
+                        <span class="text-3xl font-bold text-blue-600" id="caStat-new">—</span>
+                        <span class="text-xs text-gray-400">Joined in last 30 days</span>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Never Ordered</span>
+                        <span class="text-3xl font-bold text-orange-500" id="caStat-zero">—</span>
+                        <span class="text-xs text-gray-400">Registered but no orders</span>
+                    </div>
+                </div>
+
+                <!-- App Activity Chart + Top Customers -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <!-- App Entry Activity (Registrations per month) -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                        <h3 class="font-bold text-gray-700 mb-1 flex items-center gap-2"><i class="fas fa-user-clock text-blue-500"></i> Customer App Entries (Monthly)</h3>
+                        <p class="text-xs text-gray-400 mb-3">When customers first registered in the app</p>
+                        <div style="position:relative;height:180px;width:100%;">
+                            <canvas id="custEntryChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- Order Frequency Segments — moved up, no more scrolling to find -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                        <h3 class="font-bold text-gray-700 mb-1 flex items-center gap-2"><i class="fas fa-chart-bar text-purple-500"></i> Order Frequency Segments</h3>
+                        <p class="text-xs text-gray-400 mb-3">How often customers order</p>
+                        <div class="grid grid-cols-2 gap-3 mt-2" id="custFreqSegments"></div>
+                    </div>
+                </div>
+
+                <!-- Top customers by revenue — full width compact -->
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
+                    <h3 class="font-bold text-gray-700 mb-1 flex items-center gap-2"><i class="fas fa-trophy text-yellow-500"></i> Top 5 Customers by Revenue</h3>
+                    <p class="text-xs text-gray-400 mb-4">Based on total delivered order value</p>
+                    <div id="topCustomersList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+                </div>
+
+                <!-- Search + Table -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-4 flex flex-col md:flex-row gap-3 items-center">
+                    <input type="text" id="customerSearchInput" class="flex-1 pl-4 pr-4 py-2 border rounded-lg outline-none focus:border-green-500" placeholder="Search by name, firm, phone...">
+                    <select id="custSortSelect" onchange="renderCustomers()" class="border rounded-lg px-3 py-2 text-sm outline-none focus:border-green-500">
+                        <option value="name">Sort: Name A–Z</option>
+                        <option value="orders_desc">Sort: Most Orders</option>
+                        <option value="revenue_desc">Sort: Highest Revenue</option>
+                        <option value="last_order_desc">Sort: Last Active</option>
+                        <option value="joined_desc">Sort: Newest Joined</option>
+                    </select>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="border-b">
+                                <tr class="text-xs uppercase bg-gray-50 text-gray-500">
+                                    <th class="px-4 py-3">Customer</th>
+                                    <th class="px-4 py-3">Contact</th>
+                                    <th class="px-4 py-3">Joined</th>
+                                    <th class="px-4 py-3 text-center">Total Orders</th>
+                                    <th class="px-4 py-3 text-center">Delivered</th>
+                                    <th class="px-4 py-3 text-right">Revenue (₹)</th>
+                                    <th class="px-4 py-3">Last Order</th>
+                                    <th class="px-4 py-3 text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customersTableBody" class="divide-y divide-gray-100 bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
             
             <!-- 6. OPERATIONS TABS -->
             <div id="tab-intel" class="view-content hidden-force"><div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-xl p-5 shadow-sm mb-6"><h3 class="font-bold text-purple-900 mb-3"><i class="fas fa-calendar-alt mr-2"></i> Future Order Pipeline</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-purple-100 text-purple-800"><tr><th class="p-3">Due Date</th><th class="p-3">Variety</th><th class="p-3 text-right">Total Demand</th></tr></thead><tbody id="intelFutureDemand" class="divide-y divide-purple-200"></tbody></table></div></div></div>
@@ -452,7 +484,6 @@
     window.initDataTools = () => {
         renderDataGrowthChart('monthly');
         updateDataNodeTable();
-        window.initBackupWarning();
     };
 
     window.refreshDataToolsUI = () => {
@@ -638,507 +669,332 @@
     window.showToast = (msg) => { const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg; t.classList.remove('translate-x-full'); setTimeout(() => t.classList.add('translate-x-full'), 3000); };
     window.toggleSidebar = () => { const sidebar = document.getElementById('sidebar'); const overlay = document.getElementById('sidebarOverlay'); sidebar.classList.toggle('-translate-x-full'); overlay.classList.toggle('hidden'); };
 
-    // --- BACKUP WARNING INIT ---
-    window.initBackupWarning = () => {
-        const lastTs = localStorage.getItem('oligo_last_backup_ts');
-        const warnEl = document.getElementById('backupWarning');
-        const okEl = document.getElementById('backupOk');
-        const manifestEl = document.getElementById('backupManifest');
-        const manifestBody = document.getElementById('backupManifestBody');
-        if (!warnEl) return;
-        if (!lastTs) {
-            warnEl.classList.remove('hidden'); okEl.classList.add('hidden');
-            document.getElementById('backupWarningText').textContent = 'No backup recorded. Download a backup now.';
-            return;
-        }
-        const days = Math.floor((Date.now() - parseInt(lastTs)) / 86400000);
-        if (days > 7) {
-            warnEl.classList.remove('hidden'); okEl.classList.add('hidden');
-            document.getElementById('backupWarningText').textContent = `Last backup was ${days} day${days!==1?'s':''} ago. Backup now!`;
-        } else {
-            okEl.classList.remove('hidden'); warnEl.classList.add('hidden');
-            document.getElementById('backupOkText').textContent = `Last backup: ${days === 0 ? 'today' : days + ' day' + (days!==1?'s':'') + ' ago'}.`;
-        }
-        // Show manifest if saved
-        const manifest = localStorage.getItem('oligo_last_backup_manifest');
-        if (manifest) {
-            try {
-                const m = JSON.parse(manifest);
-                manifestBody.innerHTML = Object.entries(m).map(([k,v]) => `<span class="text-gray-500">${k}:</span> <span class="font-bold text-gray-800">${v}</span>`).join('');
-                manifestEl.classList.remove('hidden');
-            } catch(e) {}
-        }
-    };
-
-    // --- DATA TOOLS: DOWNLOAD BACKUP (ALL 21 NODES) ---
+    // --- DATA TOOLS: DOWNLOAD BACKUP ---
     window.downloadBackup = () => {
-        const backupData = {
-            _meta: { generatedAt: new Date().toISOString(), generatedBy: document.getElementById('adminEmailDisplay')?.innerText || 'admin', version: '2.0' },
-            orders: ordersData,
-            customers: customersData,
-            Production: producersData,
-            deliveryPartners: deliveryData,
+        const backupData = { 
+            orders: ordersData, 
+            customers: customersData, 
+            producers: producersData, 
+            deliveryPartners: deliveryData, 
             farmers: farmersData,
-            stationeryPartners: stationeryData,
-            store_inventory: storeInventory,
-            store_logs: storeLogs,
+            storeInventory: storeInventory,
+            storeLogs: storeLogs,
             menus: menuData,
             farmCrops: farmCrops,
             harvests: harvestData,
             receivables: receivablesData,
             referrals: referralData,
-            partner_transactions: walletData,
-            maintenance_reports: maintenanceData,
-            seed_trials: seedData,
-            batches: window.batchesData || null,
-            sowingTasks: window.sowingTasksData || null,
-            production_logs: window.productionLogsData || null,
-            daily_logs: window.dailyLogsData || null,
-            settings: { holidays: holidaysData }
+            partnerTransactions: walletData,
+            // Include other nodes if fetched to window scope
+            generatedAt: new Date().toISOString() 
         };
-        // Build manifest
-        const manifest = {};
-        Object.entries(backupData).forEach(([k, v]) => {
-            if (k === '_meta' || k === 'settings') return;
-            if (v && typeof v === 'object') manifest[k] = Object.keys(v).length + ' records';
-            else manifest[k] = 'empty';
-        });
-        // Save last backup timestamp + manifest
-        localStorage.setItem('oligo_last_backup_ts', Date.now().toString());
-        localStorage.setItem('oligo_last_backup_manifest', JSON.stringify(manifest));
-        window.initBackupWarning();
-
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
-        const a = document.createElement('a');
-        a.setAttribute("href", dataStr);
-        a.setAttribute("download", "oligo_full_backup_" + new Date().toISOString().split('T')[0] + ".json");
-        document.body.appendChild(a); a.click(); a.remove();
-        window.showToast("Full backup downloaded (" + Object.keys(manifest).length + " nodes)");
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", "oligo_full_backup_" + new Date().toISOString().split('T')[0] + ".json");
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        window.showToast("Backup Download Started");
     };
 
-    // --- DATA TOOLS: RESTORE DATA (ALL NODES) ---
+    // --- DATA TOOLS: RESTORE DATA ---
     window.restoreData = (input) => {
         const file = input.files[0];
         if (!file) return;
+
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const data = JSON.parse(e.target.result);
-                const meta = data._meta || {};
-                const nodeMap = {
-                    orders: 'orders', customers: 'customers', Production: 'Production',
-                    deliveryPartners: 'deliveryPartners', farmers: 'farmers',
-                    stationeryPartners: 'stationeryPartners', store_inventory: 'store_inventory',
-                    store_logs: 'store_logs', menus: 'menus', farmCrops: 'farmCrops',
-                    harvests: 'harvests', receivables: 'receivables', referrals: 'referrals',
-                    partner_transactions: 'partner_transactions', maintenance_reports: 'maintenance_reports',
-                    seed_trials: 'seed_trials', batches: 'batches', sowingTasks: 'sowingTasks',
-                    production_logs: 'production_logs', daily_logs: 'daily_logs',
-                    // legacy key support
-                    producers: 'Production', storeInventory: 'store_inventory',
-                    storeLogs: 'store_logs', partnerTransactions: 'partner_transactions'
-                };
-                const nodeCounts = [];
-                const updates = {};
-                Object.entries(nodeMap).forEach(([backupKey, dbPath]) => {
-                    if (data[backupKey] && typeof data[backupKey] === 'object') {
-                        const entries = Object.entries(data[backupKey]);
-                        nodeCounts.push(`${dbPath}: ${entries.length}`);
-                        entries.forEach(([k, v]) => updates[`${dbPath}/${k}`] = v);
-                    }
-                });
-                if (data.settings?.holidays) {
-                    Object.entries(data.settings.holidays).forEach(([k,v]) => updates[`settings/holidays/${k}`] = v);
-                    nodeCounts.push(`settings/holidays: ${Object.keys(data.settings.holidays).length}`);
-                }
-                const summary = nodeCounts.join('\n');
-                const backupDate = meta.generatedAt ? new Date(meta.generatedAt).toLocaleString() : 'Unknown';
-                if (confirm(`⚠️ RESTORE from backup?\n\nBackup date: ${backupDate}\nNodes to restore:\n${summary}\n\nExisting records with same IDs will be OVERWRITTEN. Proceed?`)) {
+                if (confirm("⚠️ WARNING: You are about to MERGE/RESTORE data from this backup file.\n\nExisting records with the same IDs will be overwritten. New records will be added.\n\nAre you sure you want to proceed?")) {
+                    const updates = {};
+                    if (data.orders) Object.entries(data.orders).forEach(([k,v]) => updates[`orders/${k}`] = v);
+                    if (data.customers) Object.entries(data.customers).forEach(([k,v]) => updates[`customers/${k}`] = v);
+                    if (data.farmers) Object.entries(data.farmers).forEach(([k,v]) => updates[`farmers/${k}`] = v);
+                    if (data.storeInventory) Object.entries(data.storeInventory).forEach(([k,v]) => updates[`store_inventory/${k}`] = v);
+                    if (data.menus) Object.entries(data.menus).forEach(([k,v]) => updates[`menus/${k}`] = v);
+                    
+                    // Proceed with update
                     update(ref(db), updates)
-                        .then(() => { window.showToast(`Restore complete — ${nodeCounts.length} nodes restored`); input.value = ''; })
+                        .then(() => { window.showToast("Restore Complete"); input.value = ''; })
                         .catch(err => alert("Restore Failed: " + err.message));
-                } else { input.value = ''; }
-            } catch (err) { alert("Invalid JSON file or corrupted backup.\n" + err.message); }
+                }
+            } catch (err) {
+                alert("Invalid JSON file or corrupted backup.");
+            }
         };
         reader.readAsText(file);
     };
 
-    // --- BULK SELECT HELPERS ---
-    window._cleanupRows = []; // holds {id, path, rowData} for bulk ops
-    window.toggleSelectAll = (checked) => {
-        document.querySelectorAll('.cleanup-cb').forEach(cb => cb.checked = checked);
-        window.updateSelectedCount();
-    };
-    window.updateSelectedCount = () => {
-        const n = document.querySelectorAll('.cleanup-cb:checked').length;
-        document.getElementById('selectedCount').textContent = n + ' selected';
-    };
-
-    // --- EXPORT CLEANUP CSV ---
-    window.exportCleanupCSV = () => {
-        const rows = window._cleanupRows;
-        if (!rows.length) { alert("Load data first, then export."); return; }
-        const headers = ['ID','Date','Owner','Details','Path'];
-        const lines = [headers.join(',')];
-        rows.forEach(r => {
-            const d = r.rowData;
-            lines.push([r.id, d.dateStr||'', (d.ownerName||'').replace(/,/g,''), (d.details||'').replace(/,/g,'').replace(/<[^>]+>/g,''), r.path].join(','));
-        });
-        const blob = new Blob([lines.join('\n')], {type:'text/csv'});
-        const u = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href=u; a.download='oligo_cleanup_export.csv'; document.body.appendChild(a); a.click(); a.remove();
-        window.showToast("CSV exported — " + rows.length + " rows");
-    };
-
-    // --- ARCHIVE SELECTED ---
-    window.archiveSelected = () => {
-        const checked = [...document.querySelectorAll('.cleanup-cb:checked')];
-        if (!checked.length) { alert("Select at least one record first."); return; }
-        if (!confirm(`Archive ${checked.length} selected record(s)?\nThey will be moved to /archive and can be restored later.`)) return;
-        const updates = {};
-        const archiveDate = new Date().toISOString().split('T')[0];
-        checked.forEach(cb => {
-            const id = cb.dataset.id;
-            const path = cb.dataset.path;
-            const row = window._cleanupRows.find(r => r.id === id);
-            if (row) {
-                updates[`archive/${path.replace(/\//g,'_')}/${archiveDate}/${id}`] = row.rowData.raw || { _archived: true, _archivedAt: Date.now() };
-                updates[`${path}/${id}`] = null;
-            }
-        });
-        update(ref(db), updates)
-            .then(() => { window.showToast(`${checked.length} record(s) archived`); window.renderCleanupTable(); })
-            .catch(e => alert("Archive failed: " + e.message));
-    };
-
-    // --- DELETE SELECTED ---
-    window.deleteSelected = () => {
-        const checked = [...document.querySelectorAll('.cleanup-cb:checked')];
-        if (!checked.length) { alert("Select at least one record first."); return; }
-        if (!confirm(`⚠️ PERMANENTLY DELETE ${checked.length} selected record(s)?\nThis cannot be undone. Consider Archive instead.`)) return;
-        const updates = {};
-        checked.forEach(cb => { updates[`${cb.dataset.path}/${cb.dataset.id}`] = null; });
-        update(ref(db), updates)
-            .then(() => { window.showToast(`${checked.length} record(s) deleted`); window.renderCleanupTable(); })
-            .catch(e => alert("Delete failed: " + e.message));
-    };
-
-    // --- DATA TOOLS: CLEANUP ENGINE ---
+    // --- DATA TOOLS: CLEANUP & SEARCH (UPDATED) ---
     window.renderCleanupTable = () => {
         const target = document.getElementById('cleanupTarget').value;
         const searchInput = document.getElementById('cleanupSearch').value.toLowerCase().trim();
         const tbody = document.getElementById('cleanupTableBody');
-        window._cleanupRows = [];
-        document.getElementById('selectAllCleanup').checked = false;
-        document.getElementById('selectedCount').textContent = '0 selected';
-        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-blue-600"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+        
+        tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-blue-600"><i class="fas fa-spinner fa-spin"></i> Loading Data...</td></tr>';
 
-        // ── 1. WIPE USER ──
+        // 1. Handle "Wipe Specific User Data" Mode
         if (target === 'user_wipe') {
+            if (!customersData && !farmersData && !producersData) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center">No user data available.</td></tr>'; return; }
+            
+            let results = [];
             const allUsers = [
-                ...Object.entries(customersData||{}).map(([id,d])=>({id,...d,type:'Customer'})),
-                ...Object.entries(farmersData||{}).map(([id,d])=>({id,...d,type:'Farmer'})),
-                ...Object.entries(producersData||{}).map(([id,d])=>({id,...d,type:'Producer'})),
-                ...Object.entries(deliveryData||{}).map(([id,d])=>({id,...d,type:'Delivery'}))
-            ].filter(u=>(u.name||'').toLowerCase().includes(searchInput)||(u.phone||'').includes(searchInput)||(u.email||'').toLowerCase().includes(searchInput));
+                ...Object.entries(customersData || {}).map(([id, d]) => ({id, ...d, type: 'Customer'})),
+                ...Object.entries(farmersData || {}).map(([id, d]) => ({id, ...d, type: 'Farmer'})),
+                ...Object.entries(producersData || {}).map(([id, d]) => ({id, ...d, type: 'Producer'})),
+                ...Object.entries(deliveryData || {}).map(([id, d]) => ({id, ...d, type: 'Delivery'}))
+            ];
+
+            results = allUsers.filter(u => 
+                (u.name && u.name.toLowerCase().includes(searchInput)) || 
+                (u.phone && u.phone.includes(searchInput)) ||
+                (u.email && u.email.toLowerCase().includes(searchInput))
+            );
+
             tbody.innerHTML = '';
-            if (!allUsers.length) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No users found. Search by name or phone.</td></tr>'; return; }
-            allUsers.forEach(u => {
-                tbody.innerHTML += `<tr class="border-b hover:bg-red-50"><td class="p-3"></td><td class="p-3 text-xs font-mono">${u.id.substring(0,8)}...</td><td class="p-3 font-bold">${u.name} <span class="text-xs text-gray-500">(${u.type})</span></td><td class="p-3 text-xs text-gray-600">${u.phone||u.email||'-'}</td><td class="p-3 text-right"><button onclick="window.wipeUserData('${u.id}','${(u.name||'').replace(/'/g,"\\'")}') " class="text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-xs font-bold"><i class="fas fa-trash-alt mr-1"></i> WIPE ALL</button></td></tr>`;
+            if(results.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No users found. Try searching by name or phone.</td></tr>'; return; }
+
+            results.forEach(u => {
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-red-50 group">
+                        <td class="p-3 text-xs font-mono">ID: ${u.id.substring(0,8)}...</td>
+                        <td class="p-3 font-bold">${u.name} <span class="text-xs font-normal text-gray-500">(${u.type})</span></td>
+                        <td class="p-3 text-xs text-gray-600">${u.phone || u.email || 'No Contact Info'}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="window.wipeUserData('${u.id}', '${u.name.replace(/'/g, "\\'")}')" class="text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded text-xs font-bold transition shadow-sm">
+                                <i class="fas fa-trash-alt mr-1"></i> WIPE ALL DATA
+                            </button>
+                        </td>
+                    </tr>`;
             });
             return;
         }
 
-        // ── 2. CORRUPTED (ENHANCED) ──
+        // 2. Handle "Corrupted / Undefined" Mode
         if (target === 'corrupted') {
-            if (!ordersData) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No order data.</td></tr>'; return; }
-            tbody.innerHTML=''; let count=0;
-            const deliveryUIDs = new Set(Object.keys(deliveryData||{}));
-            const customerUIDs = new Set(Object.keys(customersData||{}));
-            Object.entries(ordersData).forEach(([id,o]) => {
-                const issues = [];
-                if (!o.createdAt || o.createdAt==='undefined') issues.push('Missing date');
-                if (!o.status) issues.push('Missing status');
-                if (o.customerName==='undefined' || (!o.customerName && !o.customerUid)) issues.push('No customer');
-                if (!o.totalAmount || isNaN(parseFloat(o.totalAmount))) issues.push('NaN amount');
-                if (parseFloat(o.totalAmount)===0 && o.status==='DELIVERED') issues.push('0-box delivered');
-                if (!o.items || !Array.isArray(o.items) || o.items.length===0) issues.push('No items[]');
-                if (o.customerUid && !customerUIDs.has(o.customerUid)) issues.push('Deleted customer UID');
-                if (o.deliveryUid && !deliveryUIDs.has(o.deliveryUid)) issues.push('Deleted delivery UID');
-                if (o.status==='PLACED' && o.createdAt && (Date.now()-o.createdAt)>30*86400000) issues.push('Stuck PLACED 30d+');
-                if (issues.length) {
+            if (!ordersData) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center">No order data loaded.</td></tr>'; return; }
+            
+            tbody.innerHTML = '';
+            let count = 0;
+            
+            Object.entries(ordersData).forEach(([id, o]) => {
+                const isCorrupted = !o.createdAt || !o.status || o.createdAt === 'undefined' || o.customerName === 'undefined';
+                
+                if (isCorrupted) {
                     count++;
-                    const issueHtml = issues.map(i=>`<span class="bg-red-100 text-red-700 px-1.5 py-0.5 rounded text-xs mr-1">${i}</span>`).join('');
-                    window._cleanupRows.push({id, path:'orders', rowData:{dateStr:o.createdAt?new Date(o.createdAt).toLocaleDateString():'—', ownerName:o.customerName||'Unknown', details:issues.join(', '), raw:o}});
-                    tbody.innerHTML += `<tr class="border-b hover:bg-yellow-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="orders" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono text-gray-500">${id.substring(0,6)}...<br>${o.createdAt?new Date(o.createdAt).toLocaleDateString():'—'}</td><td class="p-3 text-xs font-bold">${o.customerName||'Unknown'}</td><td class="p-3 text-xs">${issueHtml}</td><td class="p-3 text-right flex gap-1 justify-end"><button onclick="window.archiveRecord('orders','${id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded text-xs font-bold">Archive</button><button onclick="window.deleteRecord('orders','${id}')" class="text-red-500 bg-white border border-red-100 hover:bg-red-50 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
+                    tbody.innerHTML += `
+                        <tr class="border-b hover:bg-yellow-50">
+                            <td class="p-3 text-xs text-red-500 font-bold">MISSING DATE</td>
+                            <td class="p-3 text-xs font-mono">${id}</td>
+                            <td class="p-3 text-xs">Status: ${o.status || 'NULL'} | Total: ${o.totalAmount || '?' }</td>
+                            <td class="p-3 text-right">
+                                <button onclick="window.deleteRecord('orders', '${id}')" class="text-red-600 bg-red-100 hover:bg-red-200 px-3 py-1 rounded text-xs font-bold transition">Fix/Delete</button>
+                            </td>
+                        </tr>`;
                 }
             });
-            if (!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i> No corrupted records found!</td></tr>';
+            
+            if (count === 0) tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle"></i> No corrupted records found!</td></tr>';
             return;
         }
 
-        // ── 3. MISSING deliveredAt BACKFILL ──
-        if (target === 'missing_deliveredat') {
-            if (!ordersData) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center">No order data.</td></tr>'; return; }
-            const missing = Object.entries(ordersData).filter(([,o]) => o.status==='DELIVERED' && !o.deliveredAt);
-            tbody.innerHTML='';
-            if (!missing.length) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i> All DELIVERED orders have deliveredAt!</td></tr>'; return; }
-            // Backfill all button
-            tbody.innerHTML = `<tr><td colspan="5" class="p-3 bg-amber-50 border-b"><div class="flex items-center gap-3"><span class="text-xs text-amber-700 font-bold">${missing.length} orders missing deliveredAt — will be set to updatedAt or createdAt</span><button onclick="window.backfillDeliveredAt()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-1.5 rounded-lg shadow transition"><i class="fas fa-magic mr-1"></i> Backfill All</button></div></td></tr>`;
-            missing.slice(0,200).forEach(([id,o]) => {
-                const fallback = o.updatedAt || o.createdAt;
-                const fallbackStr = fallback ? new Date(fallback).toLocaleDateString() : '?';
-                const custName = (customersData&&customersData[o.customerUid]?.name) || o.customerName || 'Unknown';
-                window._cleanupRows.push({id, path:'orders', rowData:{dateStr:fallbackStr, ownerName:custName, details:`Will set deliveredAt = ${fallbackStr}`, raw:o}});
-                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="orders" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono">${id.substring(0,6)}...</td><td class="p-3 text-xs font-bold">${custName}</td><td class="p-3 text-xs text-amber-600">→ deliveredAt = ${fallbackStr}</td><td class="p-3 text-right"><button onclick="window.backfillOne('${id}',${fallback})" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-2 py-1 rounded font-bold">Fix</button></td></tr>`;
-            });
-            return;
-        }
+        // 3. Handle Active Batches Cleanup
+        if (target === 'batches_clean') {
+            if (!window.batchesData) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No active batches data loaded.</td></tr>'; return; }
 
-        // ── 4. STUCK PLACED ──
-        if (target === 'stuck_placed') {
-            if (!ordersData) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center">No order data.</td></tr>'; return; }
-            tbody.innerHTML=''; let count=0;
-            const cutoff = Date.now() - 30*86400000;
-            Object.entries(ordersData).filter(([,o])=>o.status==='PLACED'&&o.createdAt&&o.createdAt<cutoff).forEach(([id,o]) => {
-                count++;
-                const days = Math.floor((Date.now()-o.createdAt)/86400000);
-                const custName = (customersData&&customersData[o.customerUid]?.name)||o.customerName||'Unknown';
-                const dateStr = new Date(o.createdAt).toLocaleDateString();
-                window._cleanupRows.push({id,path:'orders',rowData:{dateStr,ownerName:custName,details:`Stuck ${days}d — PLACED`,raw:o}});
-                tbody.innerHTML+=`<tr class="border-b hover:bg-orange-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="orders" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono">${id.substring(0,6)}...<br>${dateStr}</td><td class="p-3 text-xs font-bold">${custName}</td><td class="p-3 text-xs"><span class="bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-bold">Stuck ${days} days</span> ${o.totalAmount||0} Boxes</td><td class="p-3 text-right flex gap-1 justify-end"><button onclick="window.archiveRecord('orders','${id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded text-xs font-bold">Archive</button><button onclick="window.deleteRecord('orders','${id}')" class="text-red-500 bg-white border border-red-100 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
-            });
-            if (!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i> No orders stuck in PLACED!</td></tr>';
-            return;
-        }
-
-        // ── 5. ZERO-BOX ORDERS ──
-        if (target === 'zero_box') {
-            if (!ordersData) { tbody.innerHTML='<tr><td colspan="5">No data.</td></tr>'; return; }
-            tbody.innerHTML=''; let count=0;
-            Object.entries(ordersData).filter(([,o])=>parseFloat(o.totalAmount||1)===0).forEach(([id,o])=>{
-                count++;
-                const custName=(customersData&&customersData[o.customerUid]?.name)||o.customerName||'Unknown';
-                const dateStr=o.createdAt?new Date(o.createdAt).toLocaleDateString():'—';
-                window._cleanupRows.push({id,path:'orders',rowData:{dateStr,ownerName:custName,details:`0 boxes — ${o.status}`,raw:o}});
-                tbody.innerHTML+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="orders" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono">${id.substring(0,6)}...<br>${dateStr}</td><td class="p-3 text-xs font-bold">${custName}</td><td class="p-3 text-xs"><span class="badge badge-${o.status==='DELIVERED'?'delivered':o.status==='CANCELLED'?'cancelled':'pending'}">${o.status}</span> 0 Boxes</td><td class="p-3 text-right"><button onclick="window.deleteRecord('orders','${id}')" class="text-red-500 bg-white border border-red-100 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
-            });
-            if (!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-green-600 font-bold"><i class="fas fa-check-circle mr-1"></i> No zero-box orders!</td></tr>';
-            return;
-        }
-
-        // ── 6. ARCHIVE VIEW ──
-        if (target === 'archive_view') {
-            tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-blue-600"><i class="fas fa-spinner fa-spin"></i> Loading archive...</td></tr>';
-            const archiveRef = ref(db, 'archive');
-            import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js").then(({get})=>{
-                get(archiveRef).then(snap=>{
-                    const arch = snap.val()||{};
-                    tbody.innerHTML='';
-                    if (!Object.keys(arch).length) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No archived records yet.</td></tr>'; return; }
-                    let total=0;
-                    Object.entries(arch).forEach(([node,dates])=>{
-                        Object.entries(dates).forEach(([date,items])=>{
-                            Object.entries(items).forEach(([id,item])=>{
-                                total++;
-                                if(total>300) return;
-                                tbody.innerHTML+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"></td><td class="p-3 text-xs font-mono">${id.substring(0,8)}...</td><td class="p-3 text-xs font-bold text-indigo-700">${node}</td><td class="p-3 text-xs text-gray-500">Archived ${date}</td><td class="p-3 text-right"><button onclick="window.restoreArchived('${node}','${date}','${id}')" class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-1 rounded font-bold">Restore</button></td></tr>`;
+            tbody.innerHTML = '';
+            const flattened = [];
+            // Batches are nested: batches -> ProducerUID -> BatchID -> Data
+            Object.entries(window.batchesData).forEach(([prodId, batches]) => {
+                if (typeof batches === 'object') {
+                    Object.entries(batches).forEach(([batchId, b]) => {
+                        if (b && typeof b === 'object') {
+                            flattened.push({
+                                id: batchId,
+                                parentId: prodId,
+                                ...b
                             });
-                        });
+                        }
                     });
-                    if(!total) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">Archive is empty.</td></tr>';
-                });
+                }
             });
-            return;
-        }
 
-        // ── 7. GENERIC NODE TARGETS ──
-        const nodeTargetMap = {
-            daily_logs_clean:   { path:'daily_logs',           data:()=>window.dailyLogsData,     ownerFn:(id,o)=>o.completedBy||'System',     detailFn:(id,o)=>o.task||id },
-            store_logs_clean:   { path:'store_logs',           data:()=>storeLogs,                 ownerFn:(id,o)=>o.user||'Store',             detailFn:(id,o)=>o.action||'-' },
-            sowing_tasks_clean: { path:'sowingTasks',          data:()=>window.sowingTasksData,    ownerFn:(id,o)=>o.assignedTo||'Farm',        detailFn:(id,o)=>`${o.item||'?'} (${o.qty||0} trays)`, nested:true },
-            seed_trials_clean:  { path:'seed_trials',          data:()=>seedData,                  ownerFn:(id,o)=>o.tester?.name||'Lab',       detailFn:(id,o)=>`${o.variety||'?'} — ${o.vendor||'?'}` },
-            farm_crops_clean:   { path:'farmCrops',            data:()=>farmCrops,                 ownerFn:(id,o)=>o.farmer||'Farm',            detailFn:(id,o)=>o.cropName||'-' },
-            harvests_clean:     { path:'harvests',             data:()=>harvestData,               ownerFn:(id,o)=>o.farmer||'Farm',            detailFn:(id,o)=>`${o.item||'?'} — ${o.weight||'?'}kg` },
-            partner_transactions_clean: { path:'partner_transactions', data:()=>walletData,        ownerFn:(id,o)=>o.partnerName||o.partnerId?.substring(0,8)||'Partner', detailFn:(id,o)=>`₹${o.amount||0} — ${o.type||'tx'}` },
-            receivables_clean:  { path:'receivables',          data:()=>receivablesData,           ownerFn:(id,o)=>o.customerName||o.customerId?.substring(0,8)||'?', detailFn:(id,o)=>`₹${o.amount||0} — ${o.status||''}` },
-        };
+            // Filter by search if provided
+            const filtered = flattened.filter(b => {
+                if (!searchInput) return true;
+                return (b.item && b.item.toLowerCase().includes(searchInput)) || 
+                       (b.sownBy && b.sownBy.toLowerCase().includes(searchInput));
+            });
 
-        const nodeConf = nodeTargetMap[target];
-        if (nodeConf) {
-            let rawData = nodeConf.data();
-            // Flatten nested structures (sowingTasks: uid -> tasks)
-            if (nodeConf.nested && rawData) {
-                const flat = {};
-                Object.entries(rawData).forEach(([uid, tasks]) => {
-                    if (typeof tasks==='object') Object.entries(tasks).forEach(([tid,t])=>{ flat[tid]={...t, _parentId:uid}; });
-                });
-                rawData = flat;
+            // Sort by date (Oldest first for cleanup)
+            filtered.sort((a,b) => (a.sowDate || 0) - (b.sowDate || 0));
+
+            let count = 0;
+            const limit = 500;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No active batch records found.</td></tr>';
+                return;
             }
-            if (!rawData||!Object.keys(rawData).length) { tbody.innerHTML=`<tr><td colspan="5" class="p-4 text-center text-gray-400">No data in /${nodeConf.path} yet.</td></tr>`; return; }
-            renderGenericRows(rawData, nodeConf, searchInput);
+
+            filtered.forEach(b => {
+                if (count >= limit) return;
+                count++;
+                
+                const dateStr = b.sowDate ? new Date(b.sowDate).toLocaleDateString() : 'Unknown Date';
+                const farmerName = b.sownBy || 'System/Unknown';
+                const details = `${b.item} (${b.qty} Trays) - ${b.status}`;
+                
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 text-xs whitespace-nowrap">
+                            <span class="font-mono text-gray-500">Sown: ${dateStr}</span>
+                        </td>
+                        <td class="p-3 text-sm font-bold text-gray-700">${farmerName}</td>
+                        <td class="p-3 text-xs text-gray-600">${details}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="window.deleteRecord('batches/${b.parentId}', '${b.id}')" class="text-red-500 hover:text-red-700 bg-white border border-red-100 hover:bg-red-50 px-3 py-1 rounded text-xs font-bold transition">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
             return;
         }
 
-        // ── 8. STANDARD TARGETS (orders, shortfall, unknown_cust, maintenance_reports, production_logs, batches_clean) ──
-        if ((target==='orders'||target==='shortfall_clean'||target==='unknown_cust') && ordersData) { renderStandardRows(ordersData,target,searchInput); return; }
-        if (target==='maintenance_reports' && maintenanceData) { renderStandardRows(maintenanceData,target,searchInput); return; }
-        if (target==='batches_clean') {
-            if (!window.batchesData) { tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No batch data.</td></tr>'; return; }
-            const flat=[]; Object.entries(window.batchesData).forEach(([pid,batches])=>{ if(typeof batches==='object') Object.entries(batches).forEach(([bid,b])=>{ if(b&&typeof b==='object') flat.push({id:bid,parentId:pid,...b}); }); });
-            renderBatchRows(flat, searchInput); return;
-        }
-        // fallback fetch from Firebase
-        const pathMap = { orders:'orders', shortfall_clean:'orders', unknown_cust:'orders', maintenance_reports:'maintenance_reports', production_logs:'production_logs' };
-        const fbPath = pathMap[target]||target;
-        onValue(ref(db, fbPath), snap=>{ renderStandardRows(snap.val()||{}, target, searchInput); }, {onlyOnce:true});
+        // 4. Handle Standard Categories (Orders, Logs, Shortfall)
+        let sourceRef = ref(db, 'orders'); // Default
+        if (target === 'shortfall_clean') sourceRef = ref(db, 'orders');
+        else if (target === 'unknown_cust') sourceRef = ref(db, 'orders');
+        else if (target === 'maintenance_reports') sourceRef = ref(db, 'maintenance_reports');
+        else if (target === 'production_logs') sourceRef = ref(db, 'production_logs');
+        else if (target === 'orders') sourceRef = ref(db, 'orders');
+
+        // If data is already in memory
+        if((target === 'orders' || target === 'shortfall_clean' || target === 'unknown_cust') && ordersData) { renderStandardRows(ordersData, target, searchInput); return; }
+        if(target === 'maintenance_reports' && maintenanceData) { renderStandardRows(maintenanceData, target, searchInput); return; }
+
+        onValue(sourceRef, (snap) => {
+            const data = snap.val() || {};
+            renderStandardRows(data, target, searchInput);
+        }, { onlyOnce: true });
     };
-
-    // ── GENERIC ROW RENDERER ──
-    function renderGenericRows(data, conf, searchTerm) {
-        const tbody = document.getElementById('cleanupTableBody');
-        tbody.innerHTML=''; let count=0;
-        const cleanupDateSingle = document.getElementById('cleanupDateSingle')?.value||'';
-        const cleanupMonth = document.getElementById('cleanupMonth')?.value||'';
-        const cleanupYear = document.getElementById('cleanupYear')?.value||'';
-        const entries = Object.entries(data).sort((a,b)=>(b[1].createdAt||b[1].timestamp||0)-(a[1].createdAt||a[1].timestamp||0));
-        entries.forEach(([id,item]) => {
-            if(count>=500) return;
-            const dateVal = item.createdAt||item.timestamp||item.sowDate||0;
-            const dateObj = dateVal?new Date(dateVal):null;
-            if(dateObj){
-                if(cleanupDateSingle && dateObj.toISOString().split('T')[0]!==cleanupDateSingle) return;
-                if(cleanupMonth!=='' && dateObj.getMonth()!==parseInt(cleanupMonth)) return;
-                if(cleanupYear && dateObj.getFullYear()!==parseInt(cleanupYear)) return;
-            } else if(cleanupDateSingle||cleanupMonth!==''||cleanupYear) return;
-            const dateStr = dateObj?dateObj.toLocaleDateString():'—';
-            const ownerName = conf.ownerFn(id,item);
-            const details = conf.detailFn(id,item);
-            const searchStr = (ownerName+details+id+dateStr).toLowerCase();
-            if(searchTerm && !searchStr.includes(searchTerm)) return;
-            const deletePath = item._parentId ? `${conf.path}/${item._parentId}` : conf.path;
-            window._cleanupRows.push({id, path:deletePath, rowData:{dateStr,ownerName,details,raw:item}});
-            count++;
-            tbody.innerHTML+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="${deletePath}" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono text-gray-500">${id.substring(0,6)}...<br>${dateStr}</td><td class="p-3 text-xs font-bold text-gray-700">${ownerName}</td><td class="p-3 text-xs text-gray-600">${details}</td><td class="p-3 text-right flex gap-1 justify-end"><button onclick="window.archiveRecord('${deletePath}','${id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded text-xs font-bold">Archive</button><button onclick="window.deleteRecord('${deletePath}','${id}')" class="text-red-500 bg-white border border-red-100 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
-        });
-        if(!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No records match filters.</td></tr>';
-    }
-
-    // ── BATCH ROWS ──
-    function renderBatchRows(flat, searchInput) {
-        const tbody = document.getElementById('cleanupTableBody');
-        tbody.innerHTML=''; let count=0;
-        flat.filter(b=>!searchInput||(b.item||'').toLowerCase().includes(searchInput)||(b.sownBy||'').toLowerCase().includes(searchInput))
-            .sort((a,b)=>(a.sowDate||0)-(b.sowDate||0))
-            .forEach(b=>{
-                if(count++>=500) return;
-                const dateStr=b.sowDate?new Date(b.sowDate).toLocaleDateString():'—';
-                const delPath=`batches/${b.parentId}`;
-                window._cleanupRows.push({id:b.id,path:delPath,rowData:{dateStr,ownerName:b.sownBy||'?',details:`${b.item} (${b.qty} Trays) — ${b.status}`,raw:b}});
-                tbody.innerHTML+=`<tr class="border-b hover:bg-gray-50"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${b.id}" data-path="${delPath}" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs font-mono">Sown: ${dateStr}</td><td class="p-3 text-xs font-bold">${b.sownBy||'?'}</td><td class="p-3 text-xs">${b.item} (${b.qty} Trays) — ${b.status}</td><td class="p-3 text-right"><button onclick="window.deleteRecord('${delPath}','${b.id}')" class="text-red-500 bg-white border border-red-100 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
-            });
-        if(!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No batch records found.</td></tr>';
-    }
 
     function renderStandardRows(data, target, searchTerm) {
         const tbody = document.getElementById('cleanupTableBody');
         tbody.innerHTML = '';
-        const cleanupDateSingle = document.getElementById('cleanupDateSingle')?.value||'';
-        const cleanupMonth = document.getElementById('cleanupMonth')?.value||'';
-        const cleanupYear = document.getElementById('cleanupYear')?.value||'';
-        const entries = Object.entries(data).sort((a,b)=>{
-            if(target==='unknown_cust') return (parseFloat(b[1].totalAmount)||0)-(parseFloat(a[1].totalAmount)||0);
-            return (b[1].createdAt||b[1].timestamp||0)-(a[1].createdAt||a[1].timestamp||0);
-        });
-        let count=0;
-        for (const [id,item] of entries) {
-            if(count>=500) break;
-            const dateVal=item.createdAt||item.timestamp||0;
-            const dateObj=dateVal?new Date(dateVal):null;
-            const dateStr=dateObj?dateObj.toLocaleDateString()+' '+dateObj.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'<span class="text-red-400">Undefined</span>';
-            const yearStr=dateObj?dateObj.getFullYear().toString():'';
-            if(dateObj){
-                if(cleanupDateSingle && dateObj.toISOString().split('T')[0]!==cleanupDateSingle) continue;
-                if(cleanupMonth!=='' && dateObj.getMonth()!==parseInt(cleanupMonth)) continue;
-                if(cleanupYear && dateObj.getFullYear()!==parseInt(cleanupYear)) continue;
-            } else if(cleanupDateSingle||cleanupMonth!==''||cleanupYear) continue;
+        
+        // Cleanup date filters
+        const cleanupDateSingle = document.getElementById('cleanupDateSingle') ? document.getElementById('cleanupDateSingle').value : '';
+        const cleanupMonth = document.getElementById('cleanupMonth') ? document.getElementById('cleanupMonth').value : '';
+        const cleanupYear = document.getElementById('cleanupYear') ? document.getElementById('cleanupYear').value : '';
 
-            let ownerName='Unknown', details='', searchString='', shouldRender=true, bgClass='hover:bg-gray-50';
-            if(target==='orders'||target==='shortfall_clean'||target==='unknown_cust'){
-                ownerName=(customersData&&customersData[item.customerUid]?.name)||item.customerName||'Unknown';
-                const amtBadge=`<span class="bg-gray-800 text-white px-2 py-0.5 rounded text-xs font-bold">${item.totalAmount||0} Boxes</span>`;
-                details=`<span class="badge ${item.status==='DELIVERED'?'badge-delivered':item.status==='SHORTFALL'?'badge-shortfall':item.status==='CANCELLED'?'badge-cancelled':'badge-pending'}">${item.status}</span> ${amtBadge}`;
-                searchString=(ownerName||'')+(item.status||'')+id+yearStr;
-                if(target==='shortfall_clean'&&item.status!=='SHORTFALL'&&item.status!=='CANCELLED') shouldRender=false;
-                if(target==='unknown_cust'){
-                    const isUnk=!item.customerName||item.customerName==='Unknown'||item.customerName==='undefined'||!item.customerUid;
-                    if(!isUnk) shouldRender=false; else bgClass='hover:bg-yellow-50 bg-yellow-50/30';
-                }
-            } else if(target==='maintenance_reports'){
-                ownerName=item.reportedBy?.name||'System';
-                details=`${item.issueType||'?'} — ${(item.description||'').substring(0,30)}...`;
-                searchString=(item.issueType||'')+(item.description||'')+yearStr;
-            } else if(target==='production_logs'){
-                ownerName=item.farmer||'Prod';
-                details=`${item.action||'?'} — ${item.item||'?'}`;
-                searchString=(item.action||'')+(item.item||'')+(item.farmer||'')+yearStr;
+        // Sort Descending (Newest First) by default
+        const entries = Object.entries(data).sort((a,b) => {
+            if(target === 'unknown_cust') {
+                return (parseFloat(b[1].totalAmount) || 0) - (parseFloat(a[1].totalAmount) || 0);
             }
-            if(shouldRender&&(!searchTerm||searchString.toLowerCase().includes(searchTerm))){
+            const dateA = a[1].createdAt || a[1].timestamp || 0;
+            const dateB = b[1].createdAt || b[1].timestamp || 0;
+            return dateB - dateA; 
+        });
+
+        let count = 0;
+        const limit = 500; 
+
+        for (const [id, item] of entries) {
+            const dateVal = item.createdAt || item.timestamp || 0;
+            const dateObj = dateVal ? new Date(dateVal) : null;
+            const dateStr = dateObj ? dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '<span class="text-red-400">Undefined Date</span>';
+            const yearStr = dateObj ? dateObj.getFullYear().toString() : "";
+            
+            // Apply cleanup date filters
+            if (dateObj) {
+                if (cleanupDateSingle) {
+                    const isoDate = dateObj.toISOString().split('T')[0];
+                    if (isoDate !== cleanupDateSingle) continue;
+                }
+                if (cleanupMonth !== '' && dateObj.getMonth() !== parseInt(cleanupMonth)) continue;
+                if (cleanupYear && dateObj.getFullYear() !== parseInt(cleanupYear)) continue;
+            } else if (cleanupDateSingle || cleanupMonth !== '' || cleanupYear) {
+                // Item has no date and a date filter is active — skip it
+                continue;
+            }
+
+            let ownerName = 'Unknown';
+            let details = '';
+            let searchString = '';
+            let shouldRender = true;
+            let bgClass = "hover:bg-gray-50";
+
+            if(target === 'orders' || target === 'shortfall_clean' || target === 'unknown_cust') {
+                if (item.customerUid && customersData && customersData[item.customerUid]) {
+                    ownerName = customersData[item.customerUid].name;
+                } else {
+                    ownerName = item.customerName || 'Unknown';
+                }
+                
+                // Highlight the boxes to find the '122'
+                const amountBadge = `<span class="bg-gray-800 text-white px-2 py-0.5 rounded text-xs font-bold">${item.totalAmount || 0} Boxes</span>`;
+                
+                details = `<span class="badge ${item.status === 'DELIVERED' ? 'badge-delivered' : (item.status === 'SHORTFALL' ? 'badge-shortfall' : (item.status === 'CANCELLED' ? 'badge-cancelled' : 'badge-pending'))}">${item.status}</span> ${amountBadge}`;
+                searchString = (ownerName || "") + (item.status || "") + id + yearStr;
+
+                // SPECIAL FILTER FOR SHORTFALL MODE
+                if (target === 'shortfall_clean') {
+                     if (item.status !== 'SHORTFALL' && item.status !== 'CANCELLED') shouldRender = false;
+                }
+
+                // SPECIAL FILTER FOR UNKNOWN CUST (DETECTIVE MODE)
+                if (target === 'unknown_cust') {
+                    const isUnknown = !item.customerName || item.customerName === 'Unknown' || item.customerName === 'undefined' || !item.customerUid;
+                    if (!isUnknown) shouldRender = false;
+                    else bgClass = "hover:bg-yellow-50 bg-yellow-50/30"; // Highlight these
+                }
+
+            } else if(target === 'maintenance_reports') {
+                ownerName = item.reportedBy?.name || 'System';
+                details = `${item.issueType} - ${item.description?.substring(0,30)}...`;
+                searchString = (item.issueType || "") + (item.description || "") + yearStr;
+            } else if(target === 'production_logs') {
+                ownerName = item.farmer || 'Prod Team';
+                details = `${item.action} - ${item.item}`;
+                searchString = (item.action || "") + (item.item || "") + (item.farmer || "") + yearStr;
+            }
+
+            if (shouldRender && (!searchTerm || searchString.toLowerCase().includes(searchTerm))) {
+                if (count >= limit) break;
                 count++;
-                const delPath=(target==='shortfall_clean'||target==='unknown_cust')?'orders':target;
-                window._cleanupRows.push({id,path:delPath,rowData:{dateStr:dateObj?.toLocaleDateString()||'—',ownerName,details:details.replace(/<[^>]+>/g,''),raw:item}});
-                tbody.innerHTML+=`<tr class="border-b ${bgClass}"><td class="p-3"><input type="checkbox" class="cleanup-cb" data-id="${id}" data-path="${delPath}" onchange="window.updateSelectedCount()"></td><td class="p-3 text-xs whitespace-nowrap"><span class="font-mono text-gray-500">${id.substring(0,6)}...</span><br>${dateStr}</td><td class="p-3 text-sm font-bold text-gray-700">${ownerName}</td><td class="p-3 text-xs text-gray-600">${details}</td><td class="p-3 text-right flex gap-1 justify-end"><button onclick="window.archiveRecord('${delPath}','${id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-2 py-1 rounded text-xs font-bold">Archive</button><button onclick="window.deleteRecord('${delPath}','${id}')" class="text-red-500 bg-white border border-red-100 hover:bg-red-50 px-2 py-1 rounded text-xs font-bold">Delete</button></td></tr>`;
+                
+                // FIXED: Correct delete path for unknown_cust
+                const deletePath = (target === 'shortfall_clean' || target === 'unknown_cust') ? 'orders' : target;
+
+                tbody.innerHTML += `
+                    <tr class="border-b ${bgClass}">
+                        <td class="p-3 text-xs whitespace-nowrap">
+                            <span class="font-mono text-gray-500">${id.substring(0,6)}...</span><br>
+                            ${dateStr}
+                        </td>
+                        <td class="p-3 text-sm font-bold text-gray-700">${ownerName}</td>
+                        <td class="p-3 text-xs text-gray-600">${details}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="window.deleteRecord('${deletePath}', '${id}')" class="text-red-500 hover:text-red-700 bg-white border border-red-100 hover:bg-red-50 px-3 py-1 rounded text-xs font-bold transition">Delete</button>
+                        </td>
+                    </tr>
+                `;
             }
         }
-        if(!count) tbody.innerHTML='<tr><td colspan="5" class="p-4 text-center text-gray-400">No records found matching criteria.</td></tr>';
+
+        if(count === 0) tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No records found matching criteria.</td></tr>';
     }
 
     window.deleteRecord = (path, id) => {
-        if(confirm("⚠️ PERMANENTLY DELETE?\nConsider Archive instead — records can be recovered.")) {
+        if(confirm("⚠️ PERMANENTLY DELETE this record?\nThis cannot be undone.")) {
             remove(ref(db, `${path}/${id}`))
-                .then(()=>{ window.showToast("Record deleted"); window.renderCleanupTable(); })
-                .catch(e=>alert(e.message));
+                .then(() => { window.showToast("Record Deleted"); window.renderCleanupTable(); })
+                .catch(e => alert(e.message));
         }
-    };
-
-    window.archiveRecord = (path, id) => {
-        const archiveDate = new Date().toISOString().split('T')[0];
-        const safeKey = path.replace(/\//g,'_');
-        const row = window._cleanupRows.find(r=>r.id===id) || {};
-        const updates = {};
-        updates[`archive/${safeKey}/${archiveDate}/${id}`] = row.rowData?.raw || {_archived:true,_at:Date.now()};
-        updates[`${path}/${id}`] = null;
-        update(ref(db), updates)
-            .then(()=>{ window.showToast("Archived — recoverable from Archive view"); window.renderCleanupTable(); })
-            .catch(e=>alert(e.message));
-    };
-
-    window.restoreArchived = (node, date, id) => {
-        if(!confirm(`Restore this archived record back to /${node}?`)) return;
-        const srcPath = `archive/${node}/${date}/${id}`;
-        import("https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js").then(({get})=>{
-            get(ref(db, srcPath)).then(snap=>{
-                const val = snap.val();
-                if(!val) { alert("Archive record not found."); return; }
-                const updates = {};
-                updates[`${node}/${id}`] = val;
-                updates[srcPath] = null;
-                update(ref(db), updates).then(()=>{ window.showToast("Record restored to /"+node); window.renderCleanupTable(); });
-            });
-        });
-    };
-
-    window.backfillDeliveredAt = () => {
-        if(!ordersData) return;
-        const missing = Object.entries(ordersData).filter(([,o])=>o.status==='DELIVERED'&&!o.deliveredAt);
-        if(!confirm(`Backfill deliveredAt on ${missing.length} orders?\nWill use updatedAt if present, else createdAt.`)) return;
-        const updates={};
-        missing.forEach(([id,o])=>{ updates[`orders/${id}/deliveredAt`] = o.updatedAt||o.createdAt||Date.now(); });
-        update(ref(db), updates).then(()=>window.showToast(`Backfilled ${missing.length} orders`)).catch(e=>alert(e.message));
-    };
-
-    window.backfillOne = (id, ts) => {
-        update(ref(db,`orders/${id}`),{deliveredAt:ts}).then(()=>{ window.showToast("deliveredAt set"); window.renderCleanupTable(); }).catch(e=>alert(e.message));
     };
 
     // --- FIXED: WIPE USER DATA FUNCTION (UPDATED LOGIC) ---
@@ -1300,7 +1156,175 @@
     const renderFarmers = () => { const tb = document.getElementById('farmersTableBody'); if(!farmersData) return; tb.innerHTML=''; Object.entries(farmersData).forEach(([u,f])=>{ const b = f.approved?`<button onclick="window.toggleApproval('farmers','${u}',true)" class="text-red-600 bg-red-100 px-2 py-1 rounded text-xs font-bold">REVOKE</button>`:`<button onclick="window.toggleApproval('farmers','${u}',false)" class="text-green-600 bg-green-100 px-2 py-1 rounded text-xs font-bold">APPROVE</button>`; tb.innerHTML+=`<tr class="hover:bg-gray-50 border-b"><td class="px-4 py-3 font-medium">${f.name}</td><td class="px-4 py-3 text-sm">${f.phone||'-'}</td><td class="px-4 py-3"><span class="badge ${f.approved?'badge-active':'badge-pending'}">${f.approved?'Active':'Pending'}</span></td><td class="px-4 py-3">${b}</td></tr>`; }); };
     const renderDelivery = () => { const tb = document.getElementById('deliveryTableBody'); if(!deliveryData) return; tb.innerHTML=''; Object.entries(deliveryData).forEach(([u,d])=>{ const b = d.approved?`<button onclick="window.toggleApproval('deliveryPartners','${u}',true)" class="text-red-600 bg-red-100 px-2 py-1 rounded text-xs font-bold">REVOKE</button>`:`<button onclick="window.toggleApproval('deliveryPartners','${u}',false)" class="text-green-600 bg-green-100 px-2 py-1 rounded text-xs font-bold">APPROVE</button>`; tb.innerHTML+=`<tr class="hover:bg-gray-50 border-b"><td class="px-4 py-3 font-medium">${d.name}</td><td class="px-4 py-3 text-sm">${d.phone||'-'}</td><td class="px-4 py-3"><span class="badge ${d.approved?'badge-active':'badge-pending'}">${d.approved?'Active':'Pending'}</span></td><td class="px-4 py-3">${b}</td></tr>`; }); };
     const renderStationery = () => { const tb = document.getElementById('stationeryTableBody'); if(!stationeryData) return; tb.innerHTML=''; Object.entries(stationeryData).forEach(([u,s])=>{ const b = s.approved?`<button onclick="window.toggleApproval('stationeryPartners','${u}',true)" class="text-red-600 bg-red-100 px-2 py-1 rounded text-xs font-bold">REVOKE</button>`:`<button onclick="window.toggleApproval('stationeryPartners','${u}',false)" class="text-green-600 bg-green-100 px-2 py-1 rounded text-xs font-bold">APPROVE</button>`; tb.innerHTML+=`<tr class="hover:bg-gray-50 border-b"><td class="px-4 py-3 font-medium">${s.name}</td><td class="px-4 py-3 text-sm">${s.email}</td><td class="px-4 py-3 text-sm">${s.type||'-'}</td><td class="px-4 py-3"><span class="badge ${s.approved?'badge-active':'badge-pending'}">${s.approved?'Active':'Pending'}</span></td><td class="px-4 py-3">${b}</td></tr>`; }); };
-    const renderCustomers = () => { const tb = document.getElementById('customersTableBody'); if(!customersData) return; tb.innerHTML=''; const s = document.getElementById('customerSearchInput').value.toLowerCase(); Object.values(customersData).forEach(c=>{ if((c.name+c.phone).toLowerCase().includes(s)){ tb.innerHTML+=`<tr class="hover:bg-gray-50 border-b"><td class="px-4 py-3 font-medium">${c.name}</td><td class="px-4 py-3 text-sm font-bold">${c.firmName||'-'}</td><td class="px-4 py-3 text-sm">${c.phone||'-'}</td><td class="px-4 py-3 text-sm truncate max-w-xs">${c.address||'-'}</td></tr>`; } }); };
+    const renderCustomers = () => {
+        const tb = document.getElementById('customersTableBody');
+        if (!customersData) return;
+
+        // Robust multi-format timestamp parser (number ms, ISO string, Firestore object)
+        const parseTs = (val) => {
+            if (!val) return 0;
+            if (typeof val === 'number' && val > 1000000000) return val;
+            if (typeof val === 'string') { const p = Date.parse(val); return isNaN(p) ? 0 : p; }
+            if (typeof val === 'object' && val.seconds) return val.seconds * 1000;
+            return 0;
+        };
+
+        // Build per-customer stats + earliest order timestamp as join date fallback
+        const custStats = {};
+        if (ordersData) {
+            Object.values(ordersData).forEach(o => {
+                const uid = o.customerUid; if (!uid) return;
+                if (!custStats[uid]) custStats[uid] = { totalOrders:0, delivered:0, revenue:0, lastOrderTs:0, earliestOrderTs:Infinity };
+                custStats[uid].totalOrders++;
+                if (o.status === 'DELIVERED') { custStats[uid].delivered++; custStats[uid].revenue += parseFloat(o.totalAmount||0); }
+                const ts = parseTs(o.createdAt);
+                if (ts > 0 && ts > custStats[uid].lastOrderTs)     custStats[uid].lastOrderTs    = ts;
+                if (ts > 0 && ts < custStats[uid].earliestOrderTs) custStats[uid].earliestOrderTs = ts;
+            });
+            Object.values(custStats).forEach(s => { if (s.earliestOrderTs === Infinity) s.earliestOrderTs = 0; });
+        }
+
+        const now = new Date();
+        const msMonth = 30*24*60*60*1000;
+        const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+        const entries = Object.entries(customersData);
+
+        // ── BACKFILL: write joinedAt to Firebase for customers missing any date ──
+        // Uses earliest order createdAt as proxy; falls back to serverTimestamp (= today).
+        // Runs once silently — next load will read it back from Firebase correctly.
+        entries.forEach(([uid, c]) => {
+            const hasDate = parseTs(c.joinedAt) || parseTs(c.createdAt) || parseTs(c.registeredAt) || parseTs(c.signupDate) || parseTs(c.timestamp);
+            if (!hasDate) {
+                const earliest = custStats[uid]?.earliestOrderTs || 0;
+                const writeVal = earliest > 0 ? earliest : serverTimestamp();
+                update(ref(db, 'customers/' + uid), { joinedAt: writeVal });
+            }
+        });
+
+        // Analytics summaries
+        let totalC=0, activeC=0, newC=0, zeroC=0;
+        const monthlyEntries = {};
+        entries.forEach(([uid, c]) => {
+            totalC++;
+            const joinTs = parseTs(c.joinedAt) || parseTs(c.createdAt) || parseTs(c.registeredAt) || parseTs(c.timestamp) || custStats[uid]?.earliestOrderTs || 0;
+            if (joinTs > now.getTime() - msMonth) newC++;
+            const stats = custStats[uid];
+            if (!stats || stats.totalOrders === 0) zeroC++;
+            if (stats && stats.lastOrderTs >= thisMonthStart) activeC++;
+            if (joinTs) {
+                const jd = new Date(joinTs);
+                const key = `${jd.getFullYear()}-${String(jd.getMonth()+1).padStart(2,'0')}`;
+                monthlyEntries[key] = (monthlyEntries[key]||0) + 1;
+            }
+        });
+        const safeSet = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+        safeSet('caStat-total', totalC); safeSet('caStat-active', activeC); safeSet('caStat-new', newC); safeSet('caStat-zero', zeroC);
+
+        // App Entry Chart
+        const last12 = [];
+        for (let i=11; i>=0; i--) { const d = new Date(now.getFullYear(), now.getMonth()-i, 1); last12.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`); }
+        const chartLabels = last12.map(k => { const [y,m]=k.split('-'); return new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'short',year:'2-digit'}); });
+        const chartData = last12.map(k => monthlyEntries[k]||0);
+        const custEntryCtx = document.getElementById('custEntryChart');
+        if (custEntryCtx) {
+            if (window._custEntryChart) { window._custEntryChart.destroy(); window._custEntryChart = null; }
+            window._custEntryChart = new Chart(custEntryCtx, {
+                type:'bar', data:{labels:chartLabels, datasets:[{label:'New Customers', data:chartData, backgroundColor:'rgba(59,130,246,0.7)', borderRadius:6}]},
+                options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{stepSize:1, precision:0}}}}
+            });
+        }
+
+        // Top 5 by revenue
+        const topList = document.getElementById('topCustomersList');
+        if (topList) {
+            const sorted = entries.map(([uid,c])=>({uid,c,rev:custStats[uid]?.revenue||0})).sort((a,b)=>b.rev-a.rev).slice(0,5);
+            const maxRev = sorted[0]?.rev||1;
+            topList.innerHTML = sorted.map((x,i)=>`
+                <div class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
+                    <span class="text-lg font-black w-6 text-gray-300">#${i+1}</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between text-xs font-bold text-gray-700 mb-1">
+                            <span class="truncate">${x.c.firmName||x.c.name||'Unknown'}</span>
+                            <span class="text-emerald-700 ml-2 flex-shrink-0">&#8377;${x.rev.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:${Math.round((x.rev/maxRev)*100)}%"></div></div>
+                    </div>
+                </div>`).join('');
+        }
+
+        // Frequency segments
+        const freqEl = document.getElementById('custFreqSegments');
+        if (freqEl) {
+            const segs = [
+                {label:'No Orders',  min:0,  max:0,        color:'gray'},
+                {label:'1 Order',    min:1,  max:1,        color:'blue'},
+                {label:'2–5 Orders', min:2,  max:5,        color:'indigo'},
+                {label:'6–15',       min:6,  max:15,       color:'purple'},
+                {label:'16+ Orders', min:16, max:Infinity,  color:'emerald'},
+            ];
+            freqEl.innerHTML = segs.map(sg => {
+                const cnt = entries.filter(([uid])=>{ const n=custStats[uid]?.totalOrders||0; return n>=sg.min&&n<=sg.max; }).length;
+                return `<div class="flex items-center justify-between bg-${sg.color}-50 border border-${sg.color}-100 rounded-xl px-4 py-3"><span class="text-xs font-bold text-${sg.color}-700">${sg.label}</span><span class="text-2xl font-black text-${sg.color}-700">${cnt}</span></div>`;
+            }).join('');
+        }
+
+        // Table
+        const search = (document.getElementById('customerSearchInput')?.value||'').toLowerCase();
+        const sortVal = document.getElementById('custSortSelect')?.value||'name';
+
+        let rows = entries.map(([uid,c]) => {
+            const joinedTs = parseTs(c.joinedAt) || parseTs(c.createdAt) || parseTs(c.registeredAt) || parseTs(c.signupDate) || parseTs(c.timestamp) || custStats[uid]?.earliestOrderTs || 0;
+            return { uid, c, stats: custStats[uid]||{totalOrders:0,delivered:0,revenue:0,lastOrderTs:0}, joinedTs };
+        }).filter(r => `${r.c.name||''} ${r.c.firmName||''} ${r.c.phone||''} ${r.c.email||''}`.toLowerCase().includes(search));
+
+        if (sortVal==='orders_desc')     rows.sort((a,b)=>b.stats.totalOrders-a.stats.totalOrders);
+        else if (sortVal==='revenue_desc')    rows.sort((a,b)=>b.stats.revenue-a.stats.revenue);
+        else if (sortVal==='last_order_desc') rows.sort((a,b)=>b.stats.lastOrderTs-a.stats.lastOrderTs);
+        else if (sortVal==='joined_desc')     rows.sort((a,b)=>b.joinedTs-a.joinedTs);
+        else rows.sort((a,b)=>(a.c.name||'').localeCompare(b.c.name||''));
+
+        tb.innerHTML = '';
+        if (rows.length===0) { tb.innerHTML='<tr><td colspan="8" class="p-8 text-center text-gray-400">No customers found.</td></tr>'; return; }
+
+        rows.forEach(({ c, stats, joinedTs }) => {
+            const joinedDate   = joinedTs ? new Date(joinedTs) : null;
+            const joinedFull   = joinedDate ? joinedDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : null;
+            const daysSince    = joinedDate ? Math.floor((now-joinedDate)/(1000*60*60*24)) : null;
+            const isNew        = daysSince !== null && daysSince <= 30;
+            // Source hint: was this from joinedAt (freshly written), createdAt, or earliest order?
+            const srcHint      = !joinedTs ? '' : parseTs(c.joinedAt) ? '' : parseTs(c.createdAt) ? '' : ' (via 1st order)';
+            const joinChip = joinedFull
+                ? `<span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border text-xs font-bold ${isNew?'bg-green-100 text-green-700 border-green-200':'bg-blue-50 text-blue-600 border-blue-100'}">
+                       <i class="fas fa-calendar-plus" style="font-size:10px"></i>&nbsp;${joinedFull}${srcHint}
+                       ${isNew?'<span class="bg-green-500 text-white text-[9px] font-black px-1 rounded ml-0.5">NEW</span>':''}
+                   </span>`
+                : '<span class="text-xs text-gray-300 italic">Not yet recorded</span>';
+
+            const lastOrder = stats.lastOrderTs ? new Date(stats.lastOrderTs).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) : '—';
+            const daysAgo   = stats.lastOrderTs ? Math.floor((now-stats.lastOrderTs)/(1000*60*60*24)) : null;
+            const actBadge  = stats.totalOrders===0
+                ? '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-400">No Orders</span>'
+                : daysAgo!==null&&daysAgo<=30
+                    ? '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Active</span>'
+                    : '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-600">Dormant</span>';
+
+            tb.innerHTML += `<tr class="hover:bg-gray-50 border-b">
+                <td class="px-4 py-3">
+                    <div class="font-medium text-sm">${c.name||'—'}</div>
+                    <div class="text-xs text-gray-400 font-bold">${c.firmName||''}</div>
+                    <div class="text-xs text-gray-400">${c.email||''}</div>
+                    <div class="mt-1">${joinChip}</div>
+                </td>
+                <td class="px-4 py-3 text-sm">${c.phone||'—'}</td>
+                <td class="px-4 py-3 text-xs text-gray-500">${joinedFull||'—'}</td>
+                <td class="px-4 py-3 text-center font-bold text-sm">${stats.totalOrders}</td>
+                <td class="px-4 py-3 text-center text-sm text-emerald-700 font-bold">${stats.delivered}</td>
+                <td class="px-4 py-3 text-right font-bold text-sm text-slate-700">&#8377;${stats.revenue.toLocaleString('en-IN')}</td>
+                <td class="px-4 py-3 text-xs text-gray-500">${lastOrder}</td>
+                <td class="px-4 py-3 text-center">${actBadge}</td>
+            </tr>`;
+        });
+    };
     const renderMaintenance = () => { const tb = document.getElementById('maintenanceTableBody'); if(!maintenanceData) return; tb.innerHTML=''; Object.entries(maintenanceData).sort((a,b)=>b[1].timestamp-a[1].timestamp).forEach(([k,m])=>{ const res = m.status==='Resolved'; const bdg = res?`<span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">RESOLVED</span>`:`<span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-bold">OPEN</span>`; const adm = res?'':`<button onclick="window.addAdminNote('${k}')" class="text-xs bg-gray-100 px-2 py-1 rounded border">Request Update</button>`; tb.innerHTML+=`<tr class="hover:bg-gray-50 border-b"><td class="p-4 text-xs">${new Date(m.timestamp).toLocaleDateString()}</td><td class="p-4"><span class="font-bold">${m.issueType}</span><br><span class="text-xs italic">"${m.description}"</span></td><td class="p-4 text-sm">${m.reportedBy?.name||'-'}</td><td class="p-4 text-xs">${m.actionTaken||'Pending'}</td><td class="p-4 text-center">${bdg}</td><td class="p-4">${adm}</td></tr>`; }); };
     const renderSeedLab = () => { const tb = document.getElementById('seedLabTableBody'); if(!seedData) return; tb.innerHTML=''; Object.values(seedData).sort((a,b)=>b.timestamp-a.timestamp).forEach(s=>{ const rate = s.metrics?s.metrics.rate:0; tb.innerHTML+=`<tr class="hover:bg-gray-50 border-b"><td class="p-4 text-xs">${new Date(s.timestamp).toLocaleDateString()}</td><td class="p-4 font-bold">${s.variety}</td><td class="p-4 text-sm">${s.vendor}</td><td class="p-4 font-mono font-bold">${rate}%</td><td class="p-4 text-center text-xs">${s.recommendation}</td><td class="p-4 text-xs">${s.tester?.name||'-'}</td></tr>`; }); };
     const renderBusinessIntel = () => { if(!ordersData) return; const fb = document.getElementById('intelFutureDemand'); fb.innerHTML=''; const now=new Date(); const fut={}; Object.values(ordersData).forEach(o=>{ if(o.status!=='CANCELLED' && o.requestedDate){ const d=new Date(o.requestedDate); if(d>now){ const ds=d.toLocaleDateString(); o.items.forEach(i=>{ const k=`${ds}_${i.name}`; if(!fut[k]) fut[k]={date:ds,item:i.name,qty:0}; fut[k].qty+=parseInt(i.qty||0); }); } } }); Object.values(fut).sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(f=>{ fb.innerHTML+=`<tr class="hover:bg-purple-50"><td class="p-3 font-bold text-purple-900">${f.date}</td><td class="p-3">${f.item}</td><td class="p-3 text-right font-bold">${f.qty}</td></tr>`; }); };
@@ -1436,8 +1460,139 @@
     window.deleteHoliday = (id) => { if(confirm("Delete?")) remove(ref(db, `settings/holidays/${id}`)); };
     window.printReport = () => window.print();
     window.exportReportToExcel = () => { const t=document.querySelector('#reportContainer table'); if(!t)return; const h=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body>${t.outerHTML}</body></html>`; const b=new Blob([h],{type:'application/vnd.ms-excel'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='oligo_report.xls'; document.body.appendChild(a); a.click(); document.body.removeChild(a); };
-    window.generateReport = (t) => { /* Simplified report logic used in previous versions is assumed here */ };
-    window.generateDeliveryPartnerReport = () => { /* Logic from previous versions */ };
+
+    window.generateReport = (type) => {
+        if (!ordersData) { alert('Orders data not loaded yet. Please wait.'); return; }
+        const orders = Object.values(ordersData);
+        const now = new Date();
+        const titleEl = document.getElementById('reportTitle');
+        const metaEl  = document.getElementById('reportMeta');
+        const headEl  = document.getElementById('reportHead');
+        const bodyEl  = document.getElementById('reportBody');
+        const actEl   = document.getElementById('reportActions');
+
+        // Show export/print buttons
+        actEl.classList.remove('hidden-force');
+        metaEl.classList.remove('hidden-force');
+
+        const fmtDate = ts => ts ? new Date(ts).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : '—';
+        const fmtAmt  = v  => '₹' + parseFloat(v||0).toLocaleString('en-IN');
+
+        if (type === 'weekly' || type === 'monthly' || type === 'quarterly') {
+            const periods = [];
+            if (type === 'weekly') {
+                // Last 8 weeks
+                for (let i = 7; i >= 0; i--) {
+                    const end = new Date(now); end.setDate(now.getDate() - i*7); end.setHours(23,59,59,999);
+                    const start = new Date(end); start.setDate(end.getDate() - 6); start.setHours(0,0,0,0);
+                    periods.push({ label: `W/e ${end.toLocaleDateString('en-IN',{day:'numeric',month:'short'})}`, start, end });
+                }
+                titleEl.textContent = 'Weekly Sales Report (Last 8 Weeks)';
+            } else if (type === 'monthly') {
+                for (let i = 5; i >= 0; i--) {
+                    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    const start = new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0);
+                    const end   = new Date(d.getFullYear(), d.getMonth()+1, 0, 23, 59, 59, 999);
+                    periods.push({ label: d.toLocaleDateString('en-IN',{month:'short',year:'numeric'}), start, end });
+                }
+                titleEl.textContent = 'Monthly Sales Report (Last 6 Months)';
+            } else {
+                for (let i = 3; i >= 0; i--) {
+                    const qStart = new Date(now.getFullYear(), now.getMonth() - (i*3) - (now.getMonth()%3), 1, 0,0,0,0);
+                    const qEnd   = new Date(qStart.getFullYear(), qStart.getMonth()+3, 0, 23,59,59,999);
+                    periods.push({ label: `Q${Math.ceil((qStart.getMonth()+1)/3)} ${qStart.getFullYear()}`, start: qStart, end: qEnd });
+                }
+                titleEl.textContent = 'Quarterly Sales Report';
+            }
+            let totalOrders = 0, totalRev = 0;
+            const rows = periods.map(p => {
+                const ps = orders.filter(o => {
+                    const ts = o.createdAt ? new Date(o.createdAt).getTime() : 0;
+                    return ts >= p.start.getTime() && ts <= p.end.getTime();
+                });
+                const delivered = ps.filter(o => o.status === 'DELIVERED');
+                const cancelled = ps.filter(o => o.status === 'CANCELLED');
+                const rev = delivered.reduce((s, o) => s + parseFloat(o.totalAmount||0), 0);
+                totalOrders += ps.length; totalRev += rev;
+                return `<tr class="hover:bg-gray-50"><td class="px-4 py-3 font-bold">${p.label}</td><td class="px-4 py-3">${ps.length}</td><td class="px-4 py-3 text-emerald-700 font-bold">${delivered.length}</td><td class="px-4 py-3 text-red-500">${cancelled.length}</td><td class="px-4 py-3 font-bold">₹${rev.toLocaleString('en-IN')}</td></tr>`;
+            });
+            metaEl.textContent = `${totalOrders} orders · ₹${totalRev.toLocaleString('en-IN')} revenue`;
+            headEl.innerHTML = `<tr class="text-xs uppercase text-gray-500"><th class="px-4 py-3">Period</th><th class="px-4 py-3">Total Orders</th><th class="px-4 py-3">Delivered</th><th class="px-4 py-3">Cancelled</th><th class="px-4 py-3">Revenue</th></tr>`;
+            bodyEl.innerHTML = rows.join('') || '<tr><td colspan="5" class="p-4 text-center text-gray-400">No data</td></tr>';
+
+        } else if (type === 'shortfall') {
+            titleEl.textContent = 'Shortfall Report';
+            const sf = orders.filter(o => o.shortfallReason);
+            metaEl.textContent = `${sf.length} shortfall orders`;
+            headEl.innerHTML = `<tr class="text-xs uppercase text-gray-500"><th class="px-4 py-3">Date</th><th class="px-4 py-3">Order ID</th><th class="px-4 py-3">Customer</th><th class="px-4 py-3">Reason</th><th class="px-4 py-3">Substitutes</th><th class="px-4 py-3">Amount</th></tr>`;
+            bodyEl.innerHTML = sf.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).map(o => {
+                const subs = (o.substitutes||[]).map(s=>`${s.originalItem}→${s.substituteItem}(×${s.substituteQty})`).join(', ') || '—';
+                return `<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-xs">${fmtDate(o.createdAt)}</td><td class="px-4 py-3 text-xs font-mono">${o.id||'—'}</td><td class="px-4 py-3 font-medium">${o.customerName||'—'}</td><td class="px-4 py-3 text-orange-600 font-bold">${o.shortfallReason||'—'}</td><td class="px-4 py-3 text-xs text-teal-700">${subs}</td><td class="px-4 py-3">${fmtAmt(o.totalAmount)}</td></tr>`;
+            }).join('') || '<tr><td colspan="6" class="p-4 text-center text-gray-400">No shortfall orders found</td></tr>';
+
+        } else if (type === 'cancelled') {
+            titleEl.textContent = 'Cancelled Orders Report';
+            const can = orders.filter(o => o.status === 'CANCELLED');
+            metaEl.textContent = `${can.length} cancelled orders`;
+            headEl.innerHTML = `<tr class="text-xs uppercase text-gray-500"><th class="px-4 py-3">Date</th><th class="px-4 py-3">Customer</th><th class="px-4 py-3">Items</th><th class="px-4 py-3">Amount</th><th class="px-4 py-3">Zone</th></tr>`;
+            bodyEl.innerHTML = can.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).map(o => {
+                const items = (o.items||[]).map(i=>`${i.name}×${i.qty}`).join(', ');
+                return `<tr class="hover:bg-gray-50"><td class="px-4 py-3 text-xs">${fmtDate(o.createdAt)}</td><td class="px-4 py-3 font-medium">${o.customerName||'—'}</td><td class="px-4 py-3 text-xs">${items||'—'}</td><td class="px-4 py-3">${fmtAmt(o.totalAmount)}</td><td class="px-4 py-3 text-xs">${o.zone||'—'}</td></tr>`;
+            }).join('') || '<tr><td colspan="5" class="p-4 text-center text-gray-400">No cancelled orders</td></tr>';
+
+        } else if (type === 'best_selling' || type === 'least_selling') {
+            titleEl.textContent = type === 'best_selling' ? 'Best Selling Items' : 'Least Selling Items';
+            const itemMap = {};
+            orders.filter(o => o.status === 'DELIVERED').forEach(o => {
+                (o.items||[]).forEach(i => {
+                    if (!itemMap[i.name]) itemMap[i.name] = { name: i.name, qty: 0, orders: 0, revenue: 0 };
+                    itemMap[i.name].qty += parseInt(i.qty||0);
+                    itemMap[i.name].orders++;
+                    itemMap[i.name].revenue += parseFloat(i.price||0) * parseInt(i.qty||0);
+                });
+            });
+            const sorted = Object.values(itemMap).sort((a, b) => type === 'best_selling' ? b.qty - a.qty : a.qty - b.qty);
+            metaEl.textContent = `${sorted.length} varieties`;
+            headEl.innerHTML = `<tr class="text-xs uppercase text-gray-500"><th class="px-4 py-3">Rank</th><th class="px-4 py-3">Item</th><th class="px-4 py-3">Total Qty</th><th class="px-4 py-3">Order Count</th><th class="px-4 py-3">Revenue</th></tr>`;
+            bodyEl.innerHTML = sorted.map((item, i) =>
+                `<tr class="hover:bg-gray-50"><td class="px-4 py-3 font-bold text-gray-400">#${i+1}</td><td class="px-4 py-3 font-bold">${item.name}</td><td class="px-4 py-3 font-bold text-emerald-700">${item.qty}</td><td class="px-4 py-3">${item.orders}</td><td class="px-4 py-3">${fmtAmt(item.revenue)}</td></tr>`
+            ).join('') || '<tr><td colspan="5" class="p-4 text-center text-gray-400">No delivered orders found</td></tr>';
+        }
+    };
+
+    window.generateDeliveryPartnerReport = () => {
+        if (!ordersData) { alert('Orders data not loaded.'); return; }
+        const start = document.getElementById('delReportStart').value;
+        const end   = document.getElementById('delReportEnd').value;
+        if (!start || !end) { alert('Please select both From and To dates.'); return; }
+        const startTs = new Date(start).setHours(0,0,0,0);
+        const endTs   = new Date(end).setHours(23,59,59,999);
+        const headEl = document.getElementById('reportHead');
+        const bodyEl = document.getElementById('reportBody');
+        const titleEl = document.getElementById('reportTitle');
+        const metaEl  = document.getElementById('reportMeta');
+        const actEl   = document.getElementById('reportActions');
+        actEl.classList.remove('hidden-force');
+        metaEl.classList.remove('hidden-force');
+        titleEl.textContent = `Delivery Performance: ${new Date(start).toLocaleDateString('en-IN')} – ${new Date(end).toLocaleDateString('en-IN')}`;
+        const fmtAmt = v => '₹' + parseFloat(v||0).toLocaleString('en-IN');
+        const partnerMap = {}; // partnerUid/name -> stats
+        Object.values(ordersData).forEach(o => {
+            const completedTs = o.completedAt || o.statusUpdatedAt || 0;
+            const ts = completedTs ? new Date(completedTs).getTime() : 0;
+            if (!ts || ts < startTs || ts > endTs) return;
+            const pname = o.deliveryPartnerName || o.agentName || 'Unassigned';
+            if (!partnerMap[pname]) partnerMap[pname] = { name: pname, delivered: 0, revenue: 0, cancelled: 0 };
+            if (o.status === 'DELIVERED') { partnerMap[pname].delivered++; partnerMap[pname].revenue += parseFloat(o.totalAmount||0); }
+            if (o.status === 'CANCELLED') partnerMap[pname].cancelled++;
+        });
+        const rows = Object.values(partnerMap).sort((a,b) => b.delivered - a.delivered);
+        headEl.innerHTML = `<tr class="text-xs uppercase text-gray-500"><th class="px-4 py-3">Delivery Partner</th><th class="px-4 py-3">Delivered</th><th class="px-4 py-3">Cancelled</th><th class="px-4 py-3">Revenue Handled</th></tr>`;
+        metaEl.textContent = `${rows.length} partners in period`;
+        bodyEl.innerHTML = rows.map(p =>
+            `<tr class="hover:bg-gray-50"><td class="px-4 py-3 font-bold">${p.name}</td><td class="px-4 py-3 text-emerald-700 font-bold">${p.delivered}</td><td class="px-4 py-3 text-red-500">${p.cancelled}</td><td class="px-4 py-3 font-bold">${fmtAmt(p.revenue)}</td></tr>`
+        ).join('') || '<tr><td colspan="4" class="p-4 text-center text-gray-400">No deliveries found in this date range</td></tr>';
+    };
     window.addAdminNote = (key) => { const n = prompt("Note:"); if(n) update(ref(db, `maintenance_reports/${key}`), { adminNote: n }); };
 
     // --- ORDER DATE MODE SWITCHER ---
@@ -1481,6 +1636,7 @@
     document.getElementById('orderStatusInput').addEventListener('change', () => { currentOrderPage=1; renderOrders(); });
     document.getElementById('orderDateInput').addEventListener('change', () => { currentOrderPage=1; renderOrders(); });
     document.getElementById('customerSearchInput').addEventListener('input', renderCustomers);
+    document.getElementById('custSortSelect')?.addEventListener('change', renderCustomers);
 
 </script>
 </body>
