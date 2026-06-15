@@ -423,6 +423,7 @@ Code
                                 <tr class="text-xs uppercase bg-gray-50 text-gray-500">
                                     <th class="px-4 py-3">Customer</th>
                                     <th class="px-4 py-3">Contact</th>
+                                    <th class="px-4 py-3">Location</th>
                                     <th class="px-4 py-3">Joined</th>
                                     <th class="px-4 py-3 text-center">Total Orders</th>
                                     <th class="px-4 py-3 text-center">Delivered</th>
@@ -455,6 +456,94 @@ Code
 <div id="toast" class="fixed top-4 right-4 z-50 transform translate-x-full transition-transform duration-300">
     <div class="bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
         <i class="fas fa-info-circle text-green-400"></i><span id="toastMsg">Action Completed</span>
+    </div>
+</div>
+
+<!-- CUSTOMER ADDRESS MODAL -->
+<div id="customerAddressModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden-force">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100">
+        <!-- Header -->
+        <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2 uppercase tracking-wider">
+                <i class="fas fa-address-card text-green-500 text-base"></i> Client Profile & Address
+            </h3>
+            <button onclick="window.closeCustomerAddressModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition">
+                <i class="fas fa-times text-base"></i>
+            </button>
+        </div>
+        <!-- Body -->
+        <div class="p-6 space-y-4">
+            <!-- Client Summary Card -->
+            <div class="bg-gradient-to-br from-green-50 to-emerald-50/50 p-4 rounded-xl border border-green-100/50 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center text-lg font-bold shadow-sm" id="modalClientInitials">
+                    C
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h4 class="font-bold text-slate-800 text-base truncate" id="modalClientName">—</h4>
+                    <p class="text-xs text-green-700 font-bold truncate" id="modalClientFirm">—</p>
+                </div>
+            </div>
+            
+            <!-- Details Grid -->
+            <div class="grid grid-cols-2 gap-4 text-xs">
+                <div class="space-y-1">
+                    <span class="font-bold text-slate-400 uppercase tracking-wide">Contact Phone</span>
+                    <p class="font-medium text-slate-700 flex items-center gap-1.5" id="modalClientPhone">
+                        <i class="fas fa-phone text-slate-400"></i> —
+                    </p>
+                </div>
+                <div class="space-y-1">
+                    <span class="font-bold text-slate-400 uppercase tracking-wide">Email Address</span>
+                    <p class="font-medium text-slate-700 flex items-center gap-1.5 truncate" id="modalClientEmail">
+                        <i class="fas fa-envelope text-slate-400"></i> —
+                    </p>
+                </div>
+                <div class="space-y-1">
+                    <span class="font-bold text-slate-400 uppercase tracking-wide">Joined Date</span>
+                    <p class="font-medium text-slate-700 flex items-center gap-1.5" id="modalClientJoined">
+                        <i class="fas fa-calendar-alt text-slate-400"></i> —
+                    </p>
+                </div>
+                <div class="space-y-1">
+                    <span class="font-bold text-slate-400 uppercase tracking-wide">Status</span>
+                    <div id="modalClientStatus" class="mt-0.5">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400">Offline</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Section -->
+            <div class="border-t border-slate-100 pt-4 space-y-2">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide flex items-center gap-1.5">
+                    <i class="fas fa-map-marker-alt text-red-500"></i> Client Address / Location
+                </span>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60 font-semibold text-slate-700 text-xs leading-relaxed" id="modalClientAddress">
+                    —
+                </div>
+            </div>
+
+            <!-- Order Stats Section (Mini summary) -->
+            <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100 text-center text-xs">
+                <div>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Total Orders</span>
+                    <p class="text-base font-bold text-slate-800" id="modalClientTotalOrders">0</p>
+                </div>
+                <div>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Delivered</span>
+                    <p class="text-base font-bold text-emerald-600" id="modalClientDelivered">0</p>
+                </div>
+                <div>
+                    <span class="text-[9px] font-bold text-slate-400 uppercase">Revenue</span>
+                    <p class="text-base font-bold text-indigo-600" id="modalClientRevenue">₹0</p>
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+            <button onclick="window.closeCustomerAddressModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold shadow-sm transition">
+                Close Detail
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1286,7 +1375,7 @@ Code
         tb.innerHTML = '';
         if (rows.length===0) { tb.innerHTML='<tr><td colspan="8" class="p-8 text-center text-gray-400">No customers found.</td></tr>'; return; }
 
-        rows.forEach(({ c, stats, joinedTs }) => {
+        rows.forEach(({ uid, c, stats, joinedTs }) => {
             const joinedDate   = joinedTs ? new Date(joinedTs) : null;
             const joinedFull   = joinedDate ? joinedDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : null;
             const daysSince    = joinedDate ? Math.floor((now-joinedDate)/(1000*60*60*24)) : null;
@@ -1310,12 +1399,13 @@ Code
 
             tb.innerHTML += `<tr class="hover:bg-gray-50 border-b">
                 <td class="px-4 py-3">
-                    <div class="font-medium text-sm">${c.name||'—'}</div>
+                    <div class="font-medium text-sm text-green-600 hover:text-green-800 hover:underline cursor-pointer transition-colors" onclick="window.showCustomerAddressModal('${uid}')">${c.name||'—'}</div>
                     <div class="text-xs text-gray-400 font-bold">${c.firmName||''}</div>
                     <div class="text-xs text-gray-400">${c.email||''}</div>
                     <div class="mt-1">${joinChip}</div>
                 </td>
                 <td class="px-4 py-3 text-sm">${c.phone||'—'}</td>
+                <td class="px-4 py-3 text-sm text-gray-600">${c.location || c.address || '—'}</td>
                 <td class="px-4 py-3 text-xs text-gray-500">${joinedFull||'—'}</td>
                 <td class="px-4 py-3 text-center font-bold text-sm">${stats.totalOrders}</td>
                 <td class="px-4 py-3 text-center text-sm text-emerald-700 font-bold">${stats.delivered}</td>
@@ -1453,6 +1543,89 @@ Code
     };
 
     // --- GLOBAL ACTIONS ---
+    window.showCustomerAddressModal = (uid) => {
+        const customer = customersData[uid];
+        if (!customer) {
+            alert("Customer data not found.");
+            return;
+        }
+
+        const initials = (customer.name || 'C').trim().charAt(0).toUpperCase();
+        const initEl = document.getElementById('modalClientInitials');
+        if (initEl) initEl.innerText = initials;
+        
+        const nameEl = document.getElementById('modalClientName');
+        if (nameEl) nameEl.innerText = customer.name || '—';
+        
+        const firmEl = document.getElementById('modalClientFirm');
+        if (firmEl) firmEl.innerText = customer.firmName || 'No Firm Name';
+        
+        const phoneEl = document.getElementById('modalClientPhone');
+        if (phoneEl) phoneEl.innerHTML = `<i class="fas fa-phone text-slate-400"></i> ${customer.phone || '—'}`;
+        
+        const emailEl = document.getElementById('modalClientEmail');
+        if (emailEl) emailEl.innerHTML = `<i class="fas fa-envelope text-slate-400"></i> ${customer.email || '—'}`;
+        
+        const addrEl = document.getElementById('modalClientAddress');
+        if (addrEl) addrEl.innerText = customer.address || 'No address recorded.';
+
+        const parseTs = (val) => {
+            if (!val) return 0;
+            if (typeof val === 'number' && val > 1000000000) return val;
+            if (typeof val === 'string') { const p = Date.parse(val); return isNaN(p) ? 0 : p; }
+            if (typeof val === 'object' && val.seconds) return val.seconds * 1000;
+            return 0;
+        };
+        const joinedTs = parseTs(customer.joinedAt) || parseTs(customer.createdAt) || parseTs(customer.registeredAt) || parseTs(customer.timestamp) || 0;
+        const joinedFull = joinedTs ? new Date(joinedTs).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '—';
+        const joinedEl = document.getElementById('modalClientJoined');
+        if (joinedEl) joinedEl.innerHTML = `<i class="fas fa-calendar-alt text-slate-400"></i> ${joinedFull}`;
+
+        let totalOrders = 0, delivered = 0, revenue = 0, lastOrderTs = 0;
+        if (ordersData) {
+            Object.values(ordersData).forEach(o => {
+                if (o.customerUid === uid) {
+                    totalOrders++;
+                    if (o.status === 'DELIVERED') {
+                        delivered++;
+                        revenue += parseFloat(o.totalAmount || 0);
+                    }
+                    const ts = parseTs(o.createdAt);
+                    if (ts > lastOrderTs) lastOrderTs = ts;
+                }
+            });
+        }
+        
+        const totEl = document.getElementById('modalClientTotalOrders');
+        if (totEl) totEl.innerText = totalOrders;
+        
+        const delEl = document.getElementById('modalClientDelivered');
+        if (delEl) delEl.innerText = delivered;
+        
+        const revEl = document.getElementById('modalClientRevenue');
+        if (revEl) revEl.innerText = '₹' + revenue.toLocaleString('en-IN');
+
+        const daysAgo = lastOrderTs ? Math.floor((new Date() - lastOrderTs)/(1000*60*60*24)) : null;
+        let actBadge = '';
+        if (totalOrders === 0) {
+            actBadge = '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-400">No Orders</span>';
+        } else if (daysAgo !== null && daysAgo <= 30) {
+            actBadge = '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Active</span>';
+        } else {
+            actBadge = '<span class="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-600">Dormant</span>';
+        }
+        const statusEl = document.getElementById('modalClientStatus');
+        if (statusEl) statusEl.innerHTML = actBadge;
+
+        const modal = document.getElementById('customerAddressModal');
+        if (modal) modal.classList.remove('hidden-force');
+    };
+
+    window.closeCustomerAddressModal = () => {
+        const modal = document.getElementById('customerAddressModal');
+        if (modal) modal.classList.add('hidden-force');
+    };
+
     window.changeOrderPage = (dir) => { currentOrderPage += dir; renderOrders(); };
     window.modifyOrderStatus = (id, st) => { if(confirm("Cancel order?")) update(ref(db, `orders/${id}`), { status: st }).then(() => showToast("Order Cancelled")); };
     window.toggleApproval = (path, uid, st) => { update(ref(db, `${path}/${uid}`), { approved: !st }).then(() => showToast(st ? 'Revoked' : 'Approved')); };
